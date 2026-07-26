@@ -1,0 +1,14 @@
+# Core harness (pure-Python, no GPU needed)
+pydantic>=2.5,<3
+numpy>=1.24
+PyYAML>=6.0
+psutil>=5.9
+requests>=2.31
+
+# Retrieval embeddings. Torch is the heavy dependency; on Kaggle GPU images it
+# is preinstalled, so `pip install sentence-transformers` is usually enough.
+sentence-transformers>=2.7,<4
+huggingface_hub>=0.23
+
+# Tests
+pytest>=8.0

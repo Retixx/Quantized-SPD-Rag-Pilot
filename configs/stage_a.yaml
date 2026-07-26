@@ -1,0 +1,36 @@
+# Stage A -- capability calibration. 6 questions x 3 precisions = 18 predictions.
+stage: stage_a
+purpose: >
+  Decide whether the MultiHop-RAG / Qwen2.5-3B pairing has enough F16 headroom
+  to expose quantization effects at all.
+
+questions:
+  total: 6
+  by_width:
+    2: 3          # 3 questions needing 2 documents
+    "3_or_4": 3   # 3 questions needing 3 or 4 documents
+
+conditions: [fixed_verified_evidence]
+precisions: [F16, Q8_0, Q4_K_M]
+expected_predictions: 18
+
+retrieval:
+  top_k: 3
+  chunk_tokens: 400
+  overlap_tokens: 50
+  max_search_rounds: 0
+
+scoring:
+  fact_match_threshold: 0.6
+  branch_success_threshold: 0.5
+
+decision_gate:
+  metric: f16_atomic_fact_recall
+  bands:
+    - {max: 0.50, status: "BLOCKED — MODEL/BENCHMARK FLOOR"}
+    - {max: 0.70, status: "MARGINAL — REVIEW PROMPTS AND FAILURES"}
+    - {max: 0.90, status: "CALIBRATION PASS"}
+    - {max: 0.95, status: "CALIBRATION PASS (upper band)"}
+    - {max: 1.01, status: "POSSIBLE CEILING — ADD HARDER ITEMS OR DISTRACTORS"}
+  note: >
+    Screening thresholds. Not claims of formal statistical significance.

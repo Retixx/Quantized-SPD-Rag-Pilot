@@ -1,0 +1,57 @@
+# Model control. One source checkpoint, one conversion path, three precisions.
+# NEVER compare different model sizes as precision conditions.
+
+source:
+  hf_repo: Qwen/Qwen2.5-3B-Instruct
+  # Pin this to the exact commit you downloaded; prepare_models.py records the
+  # resolved commit into results/provenance.json either way.
+  hf_revision: main
+  local_dir: models/hf/Qwen2.5-3B-Instruct
+
+llama_cpp:
+  repo: https://github.com/ggml-org/llama.cpp
+  # Pin a commit for the real pilot. "master" is only acceptable for a smoke test.
+  commit: master
+  build_dir: vendor/llama.cpp
+  cmake_flags: "-DGGML_CUDA=ON -DLLAMA_CURL=OFF -DCMAKE_BUILD_TYPE=Release"
+  server_binary: vendor/llama.cpp/build/bin/llama-server
+  cli_binary: vendor/llama.cpp/build/bin/llama-cli
+  quantize_binary: vendor/llama.cpp/build/bin/llama-quantize
+  convert_script: vendor/llama.cpp/convert_hf_to_gguf.py
+
+models:
+  F16:
+    path: models/gguf/qwen2.5-3b-instruct-f16.gguf
+    derived_from: source
+    quantize_type: F16
+  Q8_0:
+    path: models/gguf/qwen2.5-3b-instruct-q8_0.gguf
+    derived_from: F16
+    quantize_type: Q8_0
+  Q4_K_M:
+    path: models/gguf/qwen2.5-3b-instruct-q4_k_m.gguf
+    derived_from: F16
+    quantize_type: Q4_K_M
+
+# Identical for every precision. The hash of this block is recorded per run.
+sampling:
+  temperature: 0.0
+  top_p: 1.0
+  top_k: 1
+  min_p: 0.0
+  repeat_penalty: 1.0
+  seed: 1234
+  max_tokens: 512
+  n_ctx: 8192
+
+backend:
+  kind: llama-server        # llama-server | llama-cli | fixture (blocked by default)
+  n_gpu_layers: 99
+  startup_timeout_s: 900
+  threads: null
+
+embedding:
+  model: sentence-transformers/all-MiniLM-L6-v2
+  revision: c9745ed1d9f207416be6d2e6f8de32d1f16199bf
+  hash_fallback: false      # true ONLY for harness tests; recorded in provenance
+  device: null

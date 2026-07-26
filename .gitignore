@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+models/
+vendor/
+results/
+data/MultiHopRAG.json
+data/corpus.json
+data/pilot_documents.json
+*.gguf
+*.zip

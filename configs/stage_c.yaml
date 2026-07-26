@@ -1,0 +1,30 @@
+# Stage C -- selective end-to-end retrieval. 6 questions x 3 precisions = 18.
+# Run only if Stage B is informative.
+stage: stage_c
+requires_stage: stage_b
+
+selection:
+  # Deterministic, applied to Stage B FIXED-EVIDENCE results, BEFORE any
+  # end-to-end output is generated or read.
+  rule: |
+    1. 2 low-width  : width == 2, ordered by question_id ascending, take first 2
+    2. 2 high-width : max available width, ordered by question_id ascending, take first 2
+    3. 2 max-disagreement : remaining Stage B questions ordered by
+       |F16 answer_score - Q4_K_M answer_score| desc, then
+       |F16 atomic_fact_recall - Q4_K_M atomic_fact_recall| desc,
+       then question_id ascending; take first 2
+  total: 6
+
+conditions: [end_to_end]
+precisions: [F16, Q8_0, Q4_K_M]
+expected_predictions: 18
+
+retrieval:
+  top_k: 3
+  chunk_tokens: 400
+  overlap_tokens: 50
+  max_search_rounds: 2      # "at most two search rounds per document agent"
+
+scoring:
+  fact_match_threshold: 0.6
+  branch_success_threshold: 0.5
