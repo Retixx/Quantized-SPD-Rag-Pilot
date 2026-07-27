@@ -564,12 +564,37 @@ def test_regression_stable_id_without_a_variant_is_byte_identical():
         call_id("stage_a", "F16", CONDITION, "q0", "agent", "d1", 1)
 
 
-def test_regression_load_yaml_refuses_to_fall_back_to_the_mini_parser(monkeypatch):
-    """The fallback parser cannot represent the nested `sampling.max_tokens`
-    mapping the real config uses, so silently falling back produced a config
-    that looked loaded and was wrong."""
+def test_regression_load_yaml_fallback_agrees_with_pyyaml_or_refuses(monkeypatch):
+    """The old fallback silently mis-parsed the repo's own configs: inline flow
+    lists stayed strings, trailing comments leaked into values, and the nested
+    `sampling.max_tokens` mapping was unreachable. A config that looks loaded
+    and is wrong mis-configures a whole run with no error.
+
+    The contract now is: agree with PyYAML, or raise. Never guess.
+    """
+    import yaml
+
     import config as C
 
+    for path in sorted((ROOT / "configs").glob("*.yaml")):
+        text = path.read_text(encoding="utf-8")
+        assert C._mini_yaml(text) == (yaml.safe_load(text) or {}), path.name
+
+    # ...and with PyYAML genuinely absent, load_yaml still returns that value
+    # rather than erroring out.
     monkeypatch.setitem(sys.modules, "yaml", None)
-    with pytest.raises(RuntimeError, match="PyYAML"):
-        C.load_yaml(ROOT / "configs" / "models.yaml")
+    cfg = C.load_yaml(ROOT / "configs" / "models.yaml")
+    assert cfg["sampling"]["max_tokens"]["coordinator"] == 384
+    assert cfg["backend"]["threads"] is None
+    assert cfg["backend"]["kind"] == "llama-server"      # trailing comment stripped
+
+
+@pytest.mark.parametrize("src,why", [
+    ("d: 2026-07-26", "a date PyYAML would type as datetime.date"),
+    ("a: &x 1\nb: *x", "anchors and aliases"),
+])
+def test_regression_mini_yaml_refuses_rather_than_guessing(src, why):
+    import config as C
+
+    with pytest.raises(C.MiniYamlUnsupported):
+        C._mini_yaml(src)
