@@ -4,6 +4,10 @@ The fixed-evidence chunk selection is computed ONCE per (question, document)
 and cached to disk. Every precision then reads the same cache, which is what
 makes the chunk-id and prompt-hash parity gates satisfiable by construction
 rather than by hope.
+
+The cache key includes a hash of the indexed document body, so a changed
+corpus produces a cache miss instead of silently reusing stale passages, and
+every frozen record carries the provenance needed to audit it later.
 """
 from __future__ import annotations
 
@@ -43,11 +47,27 @@ def build_store(documents: Dict[str, Dict[str, Any]], embedder: Embedder,
     return store
 
 
+def document_body_sha256(store: DocumentIndexStore, document_id: str) -> str:
+    """Content hash of what is actually indexed for `document_id`.
+
+    Ordered (chunk_id, chunk_text) pairs, so it moves if the corpus body, the
+    chunker or the chunk parameters move.
+    """
+    return store.get(document_id).content_hash
+
+
 def fixed_evidence_key(question_id: str, document_id: str, top_k: int,
                        chunk_tokens: int, overlap_tokens: int,
-                       embed_sig: str) -> str:
+                       embed_sig: str, body_sha256: str = "") -> str:
+    """Cache key for one frozen (question, document) evidence selection.
+
+    `body_sha256` is part of the key: without it a changed corpus.json would be
+    served stale text from the cache while the chunk-id parity gate still
+    passed, because the ids are stable even when the bodies behind them are not.
+    """
     return sha256_text("|".join([question_id, document_id, str(top_k),
-                                 str(chunk_tokens), str(overlap_tokens), embed_sig]))
+                                 str(chunk_tokens), str(overlap_tokens), embed_sig,
+                                 body_sha256]))
 
 
 class FixedEvidenceCache:
@@ -62,13 +82,28 @@ class FixedEvidenceCache:
         entry = self.data.get(key)
         return entry.get("hits") if entry else None
 
+    def get_record(self, key: str) -> Optional[Dict[str, Any]]:
+        """The whole frozen record, including its provenance block."""
+        return self.data.get(key)
+
     def put(self, key: str, question_id: str, document_id: str,
-            hits: Sequence[Hit]) -> None:
+            hits: Sequence[Hit], *, body_sha256: str = "",
+            retrieval_params: Optional[Dict[str, Any]] = None,
+            embed_signature: str = "",
+            embedder_provenance: Optional[Dict[str, Any]] = None) -> None:
+        """Freeze one selection. The provenance fields make it auditable later:
+        which embedder produced it, with which retrieval parameters, over which
+        document body."""
         self.data[key] = {
             "question_id": question_id, "document_id": document_id,
             "hits": [{"chunk_id": h.chunk_id, "document_id": h.document_id,
                       "score": h.score, "text": h.text} for h in hits],
             "chunk_ids": [h.chunk_id for h in hits],
+            "key": key,
+            "body_sha256": body_sha256,
+            "retrieval_params": dict(retrieval_params or {}),
+            "embed_signature": embed_signature,
+            "embedder_provenance": dict(embedder_provenance or {}),
         }
         self._dirty = True
 
@@ -87,13 +122,18 @@ def get_fixed_evidence(store: DocumentIndexStore, cache: FixedEvidenceCache,
                        question_id: str, question: str, document_id: str,
                        top_k: int, chunk_tokens: int, overlap_tokens: int,
                        embed_sig: str) -> List[Hit]:
+    body_sha = document_body_sha256(store, document_id)
     key = fixed_evidence_key(question_id, document_id, top_k, chunk_tokens,
-                             overlap_tokens, embed_sig)
+                             overlap_tokens, embed_sig, body_sha)
     cached = cache.get(key)
     if cached is not None:
         return hits_from_cache(cached)
     hits = store.fixed_evidence(document_id, question, top_k=top_k)
-    cache.put(key, question_id, document_id, hits)
+    cache.put(key, question_id, document_id, hits, body_sha256=body_sha,
+              retrieval_params={"top_k": top_k, "chunk_tokens": chunk_tokens,
+                                "overlap_tokens": overlap_tokens},
+              embed_signature=embed_sig,
+              embedder_provenance=store.embedder.provenance())
     return hits
 
 

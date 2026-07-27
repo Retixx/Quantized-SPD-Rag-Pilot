@@ -10,6 +10,8 @@ import os
 import sys
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -24,6 +26,7 @@ from evidence import (FixedEvidenceCache, build_store, embed_signature,
 from fixtures import DOCS, QUESTION, documents_json
 from llm_client import GuardedClient
 from logging_utils import EventLog
+from retrieval import DocumentIsolationError
 
 CFG = {"embedding": {"model": "t", "revision": "t", "hash_fallback": True}}
 
@@ -43,8 +46,10 @@ def test_three_layers_produce_a_prediction(tmp_path):
     sig = embed_signature(emb)
     client, backend = _client(tmp_path)
 
+    # run_coordinator no longer takes n_documents: the coordinator must not see
+    # the gold evidence width, which is the study's independent variable.
     coord = coord_mod.run_coordinator(client, QUESTION["question_id"],
-                                      QUESTION["question"], 2)
+                                      QUESTION["question"])
     assert coord["shared_tasks"]
     agents = []
     for doc in QUESTION["documents"]:
@@ -69,12 +74,22 @@ def test_end_to_end_loop_respects_round_budget_and_isolation(tmp_path):
     emb = make_embedder(CFG, str(tmp_path / "ec"))
     store = build_store(documents_json(), emb, sorted(DOCS), 120, 20)
     client, backend = _client(tmp_path, condition="end_to_end")
+    # The agent is handed ONE PrivateIndex, never the store: isolation is
+    # structural, not a filter argument that has to be passed correctly.
     out = agent_mod.run_end_to_end_agent(
-        client, store, QUESTION["question_id"], "doc_bbb", QUESTION["question"],
+        client, store.get("doc_bbb"), QUESTION["question_id"], "doc_bbb",
+        QUESTION["question"],
         coord_mod.fallback_tasks(QUESTION["question"])["shared_tasks"],
         top_k=2, max_search_rounds=2)
     assert out["search_rounds"] <= 2
+    assert out["stop_reason"]
     assert all(c.startswith("doc_bbb") for c in out["retrieved_chunk_ids"])
+
+    # handing it the WRONG index is a hard error, not a silent cross-read
+    with pytest.raises(DocumentIsolationError):
+        agent_mod.run_end_to_end_agent(
+            client, store.get("doc_ccc"), QUESTION["question_id"], "doc_bbb",
+            QUESTION["question"], [], top_k=2, max_search_rounds=2)
 
 
 def test_stage_c_selection_is_deterministic(tmp_path):

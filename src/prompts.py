@@ -9,6 +9,17 @@ because the pilot targets Qwen2.5-3B-Instruct rather than Gemini 2.5.
 These strings are frozen: their sha256 is recorded per run, and the same
 strings are used for F16, Q8_0 and Q4_K_M.
 """
+import re
+
+# Per-role generation budgets. Defaults only -- every call site takes the budget
+# as a parameter so configs/models.yaml can drive it and the recorded
+# sampling_hash is not advertising a budget the run never uses.
+DEFAULT_MAX_TOKENS = {
+    "coordinator": 384,
+    "document_agent": 512,
+    "document_agent_turn": 512,
+    "synthesizer": 384,
+}
 
 COORDINATOR_SYSTEM = """You are the coordination layer of a multi-agent research system.
 
@@ -29,10 +40,12 @@ Rules:
 Reply with ONE JSON object and nothing else:
 {"shared_tasks":[{"task_id":"t1","instruction":"...","required_fields":["..."]}],"synthesis_directive":"..."}"""
 
+# The supporting-document count is deliberately NOT in this prompt. It is the
+# gold evidence width (len(question["documents"])) -- oracle information no
+# deployed system has, and document count is the study's primary independent
+# variable. The coordinator writes document-agnostic instructions anyway.
 COORDINATOR_USER = """Question:
 {question}
-
-Number of supporting documents in this set: {n_documents}
 
 Produce the JSON object now."""
 
@@ -149,13 +162,23 @@ def all_prompt_texts() -> dict:
 
 
 def fill(template: str, **kw) -> str:
-    """Literal `{key}` substitution.
+    """Literal `{key}` substitution, SINGLE PASS and non-recursive.
 
     str.format() is unusable here: the prompts embed JSON schemas full of
     braces. This replaces only the named placeholders and leaves every other
     brace byte-identical, which is what makes prompt hashes comparable.
+
+    Single pass matters: several substituted values are MODEL-GENERATED
+    (coordinator instructions, retrieved passages, prior replies). Sequential
+    `str.replace` would rescan already-substituted text, so an instruction
+    containing the literal `{passages}` would be expanded with the document
+    body -- corrupting both the prompt and its hash in a study whose central
+    control is prompt hashing. Substituted content can never introduce a
+    placeholder here: each character of the template is consumed at most once.
     """
-    out = template
-    for key, value in kw.items():
-        out = out.replace("{" + key + "}", str(value))
-    return out
+    if not kw:
+        return template
+    # longest key first so {document_id} wins over a hypothetical {document}
+    keys = sorted(kw, key=lambda k: (-len(k), k))
+    pattern = re.compile("|".join(re.escape("{" + k + "}") for k in keys))
+    return pattern.sub(lambda m: str(kw[m.group(0)[1:-1]]), template)

@@ -1,0 +1,644 @@
+{
+  "_README": "Seeded from MultiHop-RAG evidence_list[].fact. Each entry is a gold atomic fact attributed to one supporting document. Review and edit the text/aliases, then set needs_manual_review to false. Scoring still runs while the flag is true, but score.py stamps every report with rubric_reviewed=false.",
+  "fact_match_threshold": 0.6,
+  "questions": {
+    "q_172b412d7f19": {
+      "answer": "Sam Bankman-Fried",
+      "answer_aliases": [],
+      "facts": [
+        {
+          "aliases": [],
+          "document_id": "doc_b503d71472f2",
+          "fact_id": "doc_b503d71472f2#f1_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "Wang testified that he heard Bankman-Fried tell another trader that it was okay to continue withdrawing money from the account as long as the amount was less than FTX’s total trading revenue."
+        },
+        {
+          "aliases": [],
+          "document_id": "doc_70808d4f68bc",
+          "fact_id": "doc_70808d4f68bc#f2_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "And after Bankman-Fried left Jane Street, the high-frequency trading firm where the former billionaire got his start in finance after MIT, he persuaded Yedidia to join him as a trader at Alameda and then as a developer at FTX."
+        },
+        {
+          "aliases": [],
+          "document_id": "doc_0f89e922841f",
+          "fact_id": "doc_0f89e922841f#f3_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "During cross-examination, Huang said Paradigm pressed Bankman-Fried on the board issue and was told he didn't want investors as directors but he did plan on having a board with experts."
+        },
+        {
+          "aliases": [],
+          "document_id": "doc_13d624f0262a",
+          "fact_id": "doc_13d624f0262a#f4_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "The prosecution painted Bankman-Fried as someone who knowingly committed fraud to achieve great wealth, power and influence, while the defense countered that the FTX founder acted in good faith, never meant to commit fraud or steal and basically got in over his head."
+        }
+      ],
+      "needs_manual_review": true,
+      "question": "Who is the individual that, according to a report by The Verge, indicated permissible withdrawals based on a trading platform's revenue, convinced a colleague from Jane Street to join his ventures as reported by Fortune, laid out plans for a specialized board to Paradigm as per Cnbc | World Business News Leader, and is alleged by the prosecution to have committed fraud for personal gain as covered by TechCrunch?",
+      "question_type": "inference_query",
+      "stage": "stage_b",
+      "width": 4
+    },
+    "q_191f176a5ede": {
+      "answer": "Google",
+      "answer_aliases": [],
+      "facts": [
+        {
+          "aliases": [],
+          "document_id": "doc_3495e16a0247",
+          "fact_id": "doc_3495e16a0247#f1_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "Over the next six months Google’s report states it has no additional measures planned for YouTube."
+        },
+        {
+          "aliases": [],
+          "document_id": "doc_3ddf85a354cb",
+          "fact_id": "doc_3ddf85a354cb#f2_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "The company did accomplish that goal, but in doing so, it inadvertently and profoundly changed how the internet looked."
+        },
+        {
+          "aliases": [],
+          "document_id": "doc_3465dba0761c",
+          "fact_id": "doc_3465dba0761c#f3_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "“Certainly there wasn’t a valid alternative to Google at the time,” Cue said."
+        },
+        {
+          "aliases": [],
+          "document_id": "doc_d7ccaaaebb29",
+          "fact_id": "doc_d7ccaaaebb29#f4_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "The case, filed by Arkansas-based publisher Helena World Chronicle, argues that Google “siphons off” news publishers’ content, their readers and ad revenue through anticompetitive means."
+        }
+      ],
+      "needs_manual_review": true,
+      "question": "Which company, recently reported by both TechCrunch and The Verge, is known for its impact on the internet's appearance, has no new measures planned for YouTube in the upcoming months, was described as the only valid search engine service option during a court defense, and is accused of harming news publishers' revenue through anticompetitive practices?",
+      "question_type": "inference_query",
+      "stage": "stage_b",
+      "width": 4
+    },
+    "q_1a82e2bb0397": {
+      "answer": "Align",
+      "answer_aliases": [],
+      "facts": [
+        {
+          "aliases": [],
+          "document_id": "doc_f13c45ed6a65",
+          "fact_id": "doc_f13c45ed6a65#f1_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "If the debt continues to rise more than the economy, risks will increase, and the government may “crowd out” private investment as it competes with the private sector for funds to service its debt."
+        },
+        {
+          "aliases": [],
+          "document_id": "doc_6644717101e4",
+          "fact_id": "doc_6644717101e4#f2_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "And yet, “We worry about our debt-to-GDP ratio in the Philippines, as it stands at about 63% and that’s a little high for us and it is not ideal,” President Ferdinand Marcos, Jr. told members of the US-ASEAN Business Council who visited Malacañang (ABS-CBN, Aug. 9, 2023)."
+        }
+      ],
+      "needs_manual_review": true,
+      "question": "Does the 'Business World' article suggesting that the 'Philippines government' could hinder private investment due to rising national debt align with the concern over the 'Philippines' debt-to-GDP ratio' expressed in another 'Business World' article, or do they present differing implications for the country's economy?",
+      "question_type": "comparison_query",
+      "stage": "stage_b",
+      "width": 2
+    },
+    "q_1d56cef09f1c": {
+      "answer": "Agreement",
+      "answer_aliases": [],
+      "facts": [
+        {
+          "aliases": [],
+          "document_id": "doc_7a01247c40f7",
+          "fact_id": "doc_7a01247c40f7#f1_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "United have also conceded 14 goals in the Champions League group stages, a new and unwanted record for the club that could get worse when they face Bayern in the final match."
+        },
+        {
+          "aliases": [],
+          "document_id": "doc_0edb6b5ba298",
+          "fact_id": "doc_0edb6b5ba298#f2_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "When it comes to pressure in the Champions League of late, United do not cope well and there are few events trickier than a night in Istanbul."
+        }
+      ],
+      "needs_manual_review": true,
+      "question": "After The Guardian reported on Manchester United's challenges with pressure in the Champions League on November 27, did TalkSport's report on November 29 about Manchester United's leaky defence and setting an unwanted record for conceding goals in the group stages show agreement or disagreement with The Guardian's assessment of Manchester United's performance in Europe?",
+      "question_type": "temporal_query",
+      "stage": "stage_a",
+      "width": 2
+    },
+    "q_1e52ebd7c957": {
+      "answer": "Google",
+      "answer_aliases": [],
+      "facts": [
+        {
+          "aliases": [],
+          "document_id": "doc_31d0b63048c6",
+          "fact_id": "doc_31d0b63048c6#f1_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "In blog posts and press materials, Google touted Gemini’s superior architecture and capabilities, claiming that the model meets or exceeds the performance of other leading gen AI models like OpenAI’s GPT-4."
+        },
+        {
+          "aliases": [],
+          "document_id": "doc_31d0b63048c6",
+          "fact_id": "doc_31d0b63048c6#f1_2",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "Google compared the performance of Gemini Pro to GPT-4’s predecessor, GPT-3.5, a model that’s around a year old."
+        },
+        {
+          "aliases": [],
+          "document_id": "doc_83e9552e26f5",
+          "fact_id": "doc_83e9552e26f5#f2_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "Epic will also suggest that Google hid items from discovery by allowing execs and employees to have “off the record” chats, but Google will counter this as well, saying it has provided the court with thousands of chat logs and millions of documents."
+        },
+        {
+          "aliases": [],
+          "document_id": "doc_d7ccaaaebb29",
+          "fact_id": "doc_d7ccaaaebb29#f3_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "The case, filed by Arkansas-based publisher Helena World Chronicle, argues that Google “siphons off” news publishers’ content, their readers and ad revenue through anticompetitive means."
+        }
+      ],
+      "needs_manual_review": true,
+      "question": "Which company, recently scrutinized by TechCrunch for both its antitrust legal defense involving document disclosure and the alleged harm its AI has caused to news publishers' revenue, also claims that its new generative AI model Gemini has capabilities that rival or exceed those of OpenAI's models?",
+      "question_type": "inference_query",
+      "stage": "stage_b",
+      "width": 3
+    },
+    "q_2534dd56bb05": {
+      "answer": "Consistent",
+      "answer_aliases": [],
+      "facts": [
+        {
+          "aliases": [],
+          "document_id": "doc_54afadd7f073",
+          "fact_id": "doc_54afadd7f073#f1_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "In the above scenario, supply disruption will lead to higher inflation and central bankers will have to adjust their policies and hold rates higher for longer than anticipated."
+        },
+        {
+          "aliases": [],
+          "document_id": "doc_b4520d0798a4",
+          "fact_id": "doc_b4520d0798a4#f2_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "Over the past 18 months, the Fed’s current chair, Jerome Powell, has been following a very similar game plan to Volcker’s, raising interest rates aggressively to quash inflation."
+        }
+      ],
+      "needs_manual_review": true,
+      "question": "After Jerome Powell's aggressive interest rate hikes mentioned by 'Fortune' on October 6th, 2023, did 'Business Line' report on October 14th, 2023, suggest that central bankers' stance on interest rates was consistent or inconsistent with Powell's approach as reported by 'Fortune'?",
+      "question_type": "temporal_query",
+      "stage": "stage_a",
+      "width": 2
+    },
+    "q_47c503113d45": {
+      "answer": "Sam Bankman-Fried",
+      "answer_aliases": [],
+      "facts": [
+        {
+          "aliases": [],
+          "document_id": "doc_70808d4f68bc",
+          "fact_id": "doc_70808d4f68bc#f1_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "But “all of that, all of it, was built on lies,” Rehn declared to the jury."
+        },
+        {
+          "aliases": [],
+          "document_id": "doc_0f89e922841f",
+          "fact_id": "doc_0f89e922841f#f2_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "During cross-examination, Huang said Paradigm pressed Bankman-Fried on the board issue and was told he didn't want investors as directors but he did plan on having a board with experts."
+        },
+        {
+          "aliases": [],
+          "document_id": "doc_a9be711178bf",
+          "fact_id": "doc_a9be711178bf#f3_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "He was the richest person in the world under 30 [and] he was going to spend it to save humanity from extinction,” he said."
+        },
+        {
+          "aliases": [],
+          "document_id": "doc_13d624f0262a",
+          "fact_id": "doc_13d624f0262a#f4_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "The prosecution painted Bankman-Fried as someone who knowingly committed fraud to achieve great wealth, power and influence, while the defense countered that the FTX founder acted in good faith, never meant to commit fraud or steal and basically got in over his head."
+        }
+      ],
+      "needs_manual_review": true,
+      "question": "Who is the individual under 30, once considered the wealthiest in that age group, who is accused of building a cryptocurrency exchange's success on falsehoods and expressed intentions to form an expert board for the company, despite a preference against investor directors, while also facing allegations of committing fraud for personal gain, power, and influence?",
+      "question_type": "inference_query",
+      "stage": "stage_a",
+      "width": 4
+    },
+    "q_5019259f0f23": {
+      "answer": "Google",
+      "answer_aliases": [],
+      "facts": [
+        {
+          "aliases": [],
+          "document_id": "doc_3465dba0761c",
+          "fact_id": "doc_3465dba0761c#f1_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "“Certainly there wasn’t a valid alternative to Google at the time,” Cue said."
+        },
+        {
+          "aliases": [],
+          "document_id": "doc_31d0b63048c6",
+          "fact_id": "doc_31d0b63048c6#f2_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "Google compared the performance of Gemini Pro to GPT-4’s predecessor, GPT-3.5, a model that’s around a year old."
+        },
+        {
+          "aliases": [],
+          "document_id": "doc_d7ccaaaebb29",
+          "fact_id": "doc_d7ccaaaebb29#f3_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "The case, filed by Arkansas-based publisher Helena World Chronicle, argues that Google “siphons off” news publishers’ content, their readers and ad revenue through anticompetitive means."
+        }
+      ],
+      "needs_manual_review": true,
+      "question": "Which company, recently compared for its Gemini Pro's performance to OpenAI's GPT-3.5 by TechCrunch, was also described by The Verge as having no valid alternative for search engine services during a court defense, and is the subject of a class action antitrust suit by news publishers for allegedly harming their bottom line through anticompetitive practices?",
+      "question_type": "inference_query",
+      "stage": "stage_a",
+      "width": 3
+    },
+    "q_5a503a86ba06": {
+      "answer": "Sam Bankman-Fried",
+      "answer_aliases": [],
+      "facts": [
+        {
+          "aliases": [],
+          "document_id": "doc_0f89e922841f",
+          "fact_id": "doc_0f89e922841f#f1_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "During cross-examination, Huang said Paradigm pressed Bankman-Fried on the board issue and was told he didn't want investors as directors but he did plan on having a board with experts."
+        },
+        {
+          "aliases": [],
+          "document_id": "doc_b6ea5ba998e1",
+          "fact_id": "doc_b6ea5ba998e1#f2_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "Because FTX had grown so much, he could no longer run both companies, he said."
+        },
+        {
+          "aliases": [],
+          "document_id": "doc_2c785c23846b",
+          "fact_id": "doc_2c785c23846b#f3_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "The second week of the trial’s standout testimony came from Alameda Research’s former CEO Caroline Ellison, who claimed she took $14 billion from customers to repay debts to lenders, using them as a line of credit under the instruction of SBF."
+        },
+        {
+          "aliases": [],
+          "document_id": "doc_13d624f0262a",
+          "fact_id": "doc_13d624f0262a#f4_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "The prosecution painted Bankman-Fried as someone who knowingly committed fraud to achieve great wealth, power and influence, while the defense countered that the FTX founder acted in good faith, never meant to commit fraud or steal and basically got in over his head."
+        }
+      ],
+      "needs_manual_review": true,
+      "question": "Who is the individual associated with FTX, who, according to reports from 'Cnbc | World Business News Leader', 'The Verge', 'TechCrunch', and another 'TechCrunch' article, planned to establish a board with experts for his company, struggled with managing the significant growth of his company alongside Alameda Research, was implicated in directing a $14 billion customer fund misappropriation, and is alleged by the prosecution to have committed fraud for personal gain?",
+      "question_type": "inference_query",
+      "stage": "stage_b",
+      "width": 4
+    },
+    "q_705571a46d9e": {
+      "answer": "Hipgnosis Songs Fund",
+      "answer_aliases": [],
+      "facts": [
+        {
+          "aliases": [],
+          "document_id": "doc_daced1b5f005",
+          "fact_id": "doc_daced1b5f005#f1_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "According to UK-listed HSF, it’s all to do with a recently-updated company valuation from HSF’s official independent valuer, US-headquartered Citrin Cooperman (CC)."
+        },
+        {
+          "aliases": [],
+          "document_id": "doc_140d73a92991",
+          "fact_id": "doc_140d73a92991#f2_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "HSF says it’s begun a process to recruit a new Chair; Sutch (pictured inset) will leave his post as and when this person is hired, or in any case before HSF’s AGM next year (in Q4 2024)."
+        }
+      ],
+      "needs_manual_review": true,
+      "question": "Which entity, currently in the process of recruiting a new Chair due to Andrew Sutch's impending departure, is also addressing concerns over financial result delays caused by an updated valuation from Citrin Cooperman, as reported by Music Business Worldwide?",
+      "question_type": "inference_query",
+      "stage": "stage_b",
+      "width": 2
+    },
+    "q_791a92f706f5": {
+      "answer": "Sam Bankman-Fried",
+      "answer_aliases": [],
+      "facts": [
+        {
+          "aliases": [],
+          "document_id": "doc_70808d4f68bc",
+          "fact_id": "doc_70808d4f68bc#f1_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "But “all of that, all of it, was built on lies,” Rehn declared to the jury."
+        },
+        {
+          "aliases": [],
+          "document_id": "doc_70808d4f68bc",
+          "fact_id": "doc_70808d4f68bc#f1_2",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "And after Bankman-Fried left Jane Street, the high-frequency trading firm where the former billionaire got his start in finance after MIT, he persuaded Yedidia to join him as a trader at Alameda and then as a developer at FTX."
+        },
+        {
+          "aliases": [],
+          "document_id": "doc_22a798cdccff",
+          "fact_id": "doc_22a798cdccff#f2_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "It was not until Judge Lewis Kaplan intervened to ask if Bankman-Fried had ever been told by Yedidia about that money, in words or in substance, that Bankman-Fried admitted he’d been told."
+        },
+        {
+          "aliases": [],
+          "document_id": "doc_13d624f0262a",
+          "fact_id": "doc_13d624f0262a#f3_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "The prosecution painted Bankman-Fried as someone who knowingly committed fraud to achieve great wealth, power and influence, while the defense countered that the FTX founder acted in good faith, never meant to commit fraud or steal and basically got in over his head."
+        }
+      ],
+      "needs_manual_review": true,
+      "question": "Who is the individual that was involved in the creation of FTX, persuaded a former colleague from Jane Street to join his ventures, and is accused of achieving wealth through fraudulent means, a situation that was highlighted after a judge's intervention?",
+      "question_type": "inference_query",
+      "stage": "stage_a",
+      "width": 3
+    },
+    "q_82ba09d36a0a": {
+      "answer": "Sportsbooks",
+      "answer_aliases": [],
+      "facts": [
+        {
+          "aliases": [],
+          "document_id": "doc_fc4ff7c8466b",
+          "fact_id": "doc_fc4ff7c8466b#f1_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "If a significant amount of money is being placed on one team or participant, sportsbooks might adjust the odds to balance their liability."
+        },
+        {
+          "aliases": [],
+          "document_id": "doc_10249883b0dd",
+          "fact_id": "doc_10249883b0dd#f2_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "These delays may lead to bets being refunded depending on the circumstances and the specific rules of your sportsbook."
+        },
+        {
+          "aliases": [],
+          "document_id": "doc_70c18405547f",
+          "fact_id": "doc_70c18405547f#f3_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "That allows sportsbooks to earn the profit built into the odds and lines without worrying about which side wins."
+        },
+        {
+          "aliases": [],
+          "document_id": "doc_ffcb951f208b",
+          "fact_id": "doc_ffcb951f208b#f4_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "But sportsbooks are also gathering this information, and they begin to tighten the NBA Rookie of the Year lines in response."
+        }
+      ],
+      "needs_manual_review": true,
+      "question": "Which type of establishments, as reported by Sporting News, are known to modify betting odds to manage their financial risk, may return wagers in certain weather-related interruptions, profit from betting outcomes regardless of the event's result, and alter specific award-related betting lines based on new information?",
+      "question_type": "inference_query",
+      "stage": "stage_b",
+      "width": 4
+    },
+    "q_a88d06fb37a1": {
+      "answer": "ChatGPT",
+      "answer_aliases": [],
+      "facts": [
+        {
+          "aliases": [],
+          "document_id": "doc_75a682725538",
+          "fact_id": "doc_75a682725538#f1_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "ChatGPT is a general-purpose chatbot that uses artificial intelligence to generate text after a user enters a prompt, developed by tech startup OpenAI."
+        },
+        {
+          "aliases": [],
+          "document_id": "doc_ae0a5ba7c93d",
+          "fact_id": "doc_ae0a5ba7c93d#f2_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "ChatGPT can complete and debug code, compose music and essays, answer test questions, generate business ideas, write poetry and song lyrics, translate and summarize text and even emulate a computer running Linux."
+        }
+      ],
+      "needs_manual_review": true,
+      "question": "Which AI-powered chatbot, developed by OpenAI and featured in TechCrunch articles, can assist with tasks ranging from debugging code to composing music, and also generates text based on user prompts?",
+      "question_type": "inference_query",
+      "stage": "stage_b",
+      "width": 2
+    },
+    "q_aa1ca9de397d": {
+      "answer": "Consistent",
+      "answer_aliases": [],
+      "facts": [
+        {
+          "aliases": [],
+          "document_id": "doc_0790c08d63c2",
+          "fact_id": "doc_0790c08d63c2#f1_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "Testing pregnant women for GBS allows for the timely administration of antibiotics during labour, significantly reducing the risk of neonatal infections,” Daye tells us."
+        },
+        {
+          "aliases": [],
+          "document_id": "doc_dcf4e36f3d85",
+          "fact_id": "doc_dcf4e36f3d85#f2_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "But it does suggest that \"cannabis use should be avoided during pregnancy to optimize maternal and neonatal [newborn] outcomes,\" the study authors wrote in the report."
+        }
+      ],
+      "needs_manual_review": true,
+      "question": "After TechCrunch reported on Daye's tampon-based STI screening for GBS testing in pregnant women on November 6, 2023, and Live Science: The Most Interesting Articles highlighted the risks of cannabis use during pregnancy on December 13, 2023, does the advice from both sources regarding the importance of maternal health interventions during pregnancy remain consistent or inconsistent?",
+      "question_type": "temporal_query",
+      "stage": "stage_a",
+      "width": 2
+    },
+    "q_b917c1268dc8": {
+      "answer": "Apple",
+      "answer_aliases": [],
+      "facts": [
+        {
+          "aliases": [],
+          "document_id": "doc_f40227618365",
+          "fact_id": "doc_f40227618365#f1_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "The agreement also meant that Apple never switched to a Google competitor or allowed users to choose their browser when setting up their iPhones."
+        },
+        {
+          "aliases": [],
+          "document_id": "doc_7cc83b5f46a0",
+          "fact_id": "doc_7cc83b5f46a0#f2_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "But, if rumors are to be believed, Apple's focus during the Scary Fast event will be on Macs and a fresh batch of chipsets to power them."
+        },
+        {
+          "aliases": [],
+          "document_id": "doc_d7584e1a9824",
+          "fact_id": "doc_d7584e1a9824#f3_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "They use their store, their payments, they force developers to all have the same terms, they force OEMs and carriers to all have the same terms."
+        }
+      ],
+      "needs_manual_review": true,
+      "question": "Which company, covered by TechCrunch for not allowing users to select their browser during iPhone setup, is also the focus of Engadget's rumors about concentrating on Macs and new chipsets at an upcoming event, and has been reported by The Verge to enforce uniform terms on developers, OEMs, and carriers through its store and payment system?",
+      "question_type": "inference_query",
+      "stage": "stage_b",
+      "width": 3
+    },
+    "q_e1ea17514a29": {
+      "answer": "Google",
+      "answer_aliases": [],
+      "facts": [
+        {
+          "aliases": [],
+          "document_id": "doc_fd327531641b",
+          "fact_id": "doc_fd327531641b#f1_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "She admits that she may have misinterpreted the evidence, but maintains that Google manipulates Search to maximise ad revenue."
+        },
+        {
+          "aliases": [],
+          "document_id": "doc_fd327531641b",
+          "fact_id": "doc_fd327531641b#f1_2",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "Wired removed the article for not meeting its standards, but the degree to which it was shared on social media and boosted in write-ups at other outlets shows just how willing people are to accept foul play on Google’s part."
+        },
+        {
+          "aliases": [],
+          "document_id": "doc_d7ccaaaebb29",
+          "fact_id": "doc_d7ccaaaebb29#f2_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "The case, filed by Arkansas-based publisher Helena World Chronicle, argues that Google “siphons off” news publishers’ content, their readers and ad revenue through anticompetitive means."
+        }
+      ],
+      "needs_manual_review": true,
+      "question": "Which company is at the center of allegations related to manipulating search results for profit as reported by 'The Age' and is also accused by news publishers in a class action lawsuit covered by 'TechCrunch' for harming their business through anticompetitive practices?",
+      "question_type": "inference_query",
+      "stage": "stage_b",
+      "width": 2
+    },
+    "q_f09ed4017ffa": {
+      "answer": "Google",
+      "answer_aliases": [],
+      "facts": [
+        {
+          "aliases": [],
+          "document_id": "doc_a5303b0bd1ae",
+          "fact_id": "doc_a5303b0bd1ae#f1_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "But it didn’t release the full model, Gemini Ultra — only a “lite” version called Gemini Pro."
+        },
+        {
+          "aliases": [],
+          "document_id": "doc_3465dba0761c",
+          "fact_id": "doc_3465dba0761c#f2_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "“Certainly there wasn’t a valid alternative to Google at the time,” Cue said."
+        },
+        {
+          "aliases": [],
+          "document_id": "doc_d7ccaaaebb29",
+          "fact_id": "doc_d7ccaaaebb29#f3_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "The case, filed by Arkansas-based publisher Helena World Chronicle, argues that Google “siphons off” news publishers’ content, their readers and ad revenue through anticompetitive means."
+        }
+      ],
+      "needs_manual_review": true,
+      "question": "Which company, according to different reports by TechCrunch and The Verge, both released a restricted version of an AI model and was considered the only valid option for search engine services during a negotiation, while also being accused of harming news publishers' revenue and content through anticompetitive practices?",
+      "question_type": "inference_query",
+      "stage": "stage_b",
+      "width": 3
+    },
+    "q_f4cb4478a291": {
+      "answer": "Google",
+      "answer_aliases": [],
+      "facts": [
+        {
+          "aliases": [],
+          "document_id": "doc_a5303b0bd1ae",
+          "fact_id": "doc_a5303b0bd1ae#f1_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "But it didn’t release the full model, Gemini Ultra — only a “lite” version called Gemini Pro."
+        },
+        {
+          "aliases": [],
+          "document_id": "doc_fd327531641b",
+          "fact_id": "doc_fd327531641b#f2_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "She admits that she may have misinterpreted the evidence, but maintains that Google manipulates Search to maximise ad revenue."
+        },
+        {
+          "aliases": [],
+          "document_id": "doc_d7ccaaaebb29",
+          "fact_id": "doc_d7ccaaaebb29#f3_1",
+          "needs_manual_review": true,
+          "required": true,
+          "text": "The case, filed by Arkansas-based publisher Helena World Chronicle, argues that Google “siphons off” news publishers’ content, their readers and ad revenue through anticompetitive means."
+        }
+      ],
+      "needs_manual_review": true,
+      "question": "Which company, recently covered by both TechCrunch and The Age, has faced criticism for not fully releasing an AI model, manipulating search results for ad revenue, and harming news publishers' bottom lines through anticompetitive practices?",
+      "question_type": "inference_query",
+      "stage": "stage_b",
+      "width": 3
+    }
+  }
+}

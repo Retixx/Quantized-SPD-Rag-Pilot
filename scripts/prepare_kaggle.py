@@ -17,6 +17,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from config import kaggle_paths, load_models_config, resolve, results_dir  # noqa: E402
 from hardware import cuda_report, require_cuda  # noqa: E402
+from hashcache import sha256_file_cached  # noqa: E402
 from logging_utils import read_json, write_json  # noqa: E402
 
 
@@ -59,31 +60,47 @@ def preflight_offload(models_cfg: dict, precision: str, timeout: int) -> dict:
     if shutil.which(binary) is None and not Path(binary).exists():
         return {"ran": False, "reason": f"llama-server not built at {binary}"}
     s = models_cfg["sampling"]
+    budgets = s.get("max_tokens") or {}
+    probe_tokens = int(budgets.get("preflight", 32)) if isinstance(budgets, dict) \
+        else int(budgets)
     sampling = SamplingConfig(temperature=float(s["temperature"]), top_p=float(s["top_p"]),
                               top_k=int(s["top_k"]), min_p=float(s.get("min_p", 0.0)),
                               repeat_penalty=float(s.get("repeat_penalty", 1.0)),
-                              seed=int(s["seed"]), max_tokens=32,
+                              seed=int(s["seed"]), max_tokens=probe_tokens,
                               n_ctx=int(s["n_ctx"]))
-    model = ModelSpec.from_path(precision, str(path))
+    # Use the shared hash cache: this GGUF is also hashed by prepare_models.py
+    # and again per precision block in run_stage.py. ModelSpec.from_path() would
+    # force a fresh full read of up to 6 GB every time.
+    model = ModelSpec(precision=precision, path=str(path),
+                      sha256=sha256_file_cached(path),
+                      size_bytes=path.stat().st_size)
     backend = LlamaServerBackend(
         model=model, sampling=sampling, binary=binary,
         n_gpu_layers=int(models_cfg["backend"].get("n_gpu_layers", 99)),
         log_dir=str(results_dir() / "server_logs"), startup_timeout_s=timeout)
+    report: dict = {"ran": False, "reason": "did not complete"}
     try:
         backend.start()
         gen = backend.chat([{"role": "user", "content": "Reply with the single word: ready"}],
-                           max_tokens=16)
-        return {"ran": True, "precision": precision,
-                "gpu_offload": backend.offload,
-                "load_time_s": round(backend.load_time_s, 2),
-                "generation_ok": bool(gen.text.strip()) and gen.error is None,
-                "generated_tokens": gen.generated_tokens,
-                "sample_text": gen.text.strip()[:200], "error": gen.error,
-                "model_sha256": model.sha256, "memory": backend.memory}
+                           max_tokens=min(16, probe_tokens))
+        report = {"ran": True, "precision": precision,
+                  "gpu_offload": backend.offload,
+                  "load_time_s": round(backend.load_time_s, 2),
+                  "generation_ok": bool(gen.text.strip()) and gen.error is None,
+                  "generated_tokens": gen.generated_tokens,
+                  "sample_text": gen.text.strip()[:200], "error": gen.error,
+                  "model_sha256": model.sha256, "probe_max_tokens": probe_tokens}
     except Exception as exc:
-        return {"ran": False, "reason": f"{type(exc).__name__}: {exc}"}
+        report = {"ran": False, "reason": f"{type(exc).__name__}: {exc}"}
     finally:
         backend.stop()
+    # Peak-memory sampling is finalised inside stop(); reading backend.memory
+    # from within the try block always returned {}. Read it AFTER stop().
+    report["memory"] = backend.memory
+    prov = backend.provenance() if hasattr(backend, "provenance") else {}
+    report["backend_provenance"] = prov
+    report.setdefault("gpu_offload", prov.get("gpu_offload"))
+    return report
 
 
 def main() -> int:
