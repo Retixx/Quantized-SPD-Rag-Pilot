@@ -334,6 +334,28 @@ def main() -> int:
                                    int(rcfg["overlap_tokens"]), sig)
         cache.flush()
 
+    # -- coordinator preflight -------------------------------------------
+    # The coordinator is produced once at F16. Running a later precision on its
+    # own before F16 has ever run would raise KeyError per question and record
+    # every one as a `question_failure` -- a real result, but a baffling one.
+    # Say so up front instead. Separate invocations per precision are supported
+    # (run_report accumulates), so this is a normal thing for someone to do.
+    coord_path_pre = run_root / FROZEN_COORDINATOR
+    if (coord_mod.FREEZE_PRECISION not in precisions
+            and not args.dry_run and condition):
+        have = coord_mod.FrozenCoordinatorCache(coord_path_pre).question_ids() \
+            if coord_path_pre.exists() else set()
+        need = {q["question_id"] for q in questions}
+        if need - set(have):
+            raise SystemExit(
+                f"{sorted(need - set(have))[:3]}… have no frozen coordinator, and "
+                f"{coord_mod.FREEZE_PRECISION} is not in --precisions "
+                f"({precisions}).\nThe coordinator is produced once at "
+                f"{coord_mod.FREEZE_PRECISION} and reused by every precision, so "
+                f"the {coord_mod.FREEZE_PRECISION} block must run first:\n"
+                f"  python scripts/run_stage.py --stage {args.stage} "
+                f"--precisions {coord_mod.FREEZE_PRECISION}")
+
     # -- run -------------------------------------------------------------
     log = EventLog(stage_dir / "events.jsonl")
     predictions: List[Dict[str, Any]] = read_json(stage_dir / "predictions.json",

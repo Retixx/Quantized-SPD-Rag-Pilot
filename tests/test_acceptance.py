@@ -516,11 +516,25 @@ def test_9_all_three_precisions_must_produce_a_real_generation():
     assert any("fixed_evidence_chunk_parity" in f
                for f in _gates(events, skewed).failures())
 
-    drifting = [dict(e, prompt_hash="other") if (e["role"] == "coordinator"
-                                                 and e["precision"] == "Q8_0") else e
-                for e in events]
-    assert any("coordinator_prompt_parity" in f
-               for f in _gates(drifting, preds).failures())
+    # The frozen coordinator is checked on the PREDICTIONS, not on event prompt
+    # hashes: freezing means there is exactly one coordinator generation per
+    # question (at F16), so a cross-precision prompt-hash comparison would have
+    # nothing to compare and would pass vacuously. What must hold is that every
+    # precision consumed the same frozen record.
+    drifted = [dict(p, coordinator={**p["coordinator"],
+                                    "shared_tasks": [{"task_id": "t1",
+                                                      "instruction": "DIFFERENT",
+                                                      "required_fields": ["entity"]}]})
+               if p["precision"] == "Q8_0" else p for p in preds]
+    assert any("coordinator_frozen_and_shared" in f
+               for f in _gates(events, drifted).failures())
+
+    # ...and it must have been produced at F16, not by whichever block ran first
+    wrong_src = [dict(p, coordinator={**p["coordinator"],
+                                      "provenance": {"produced_by_precision": "Q4_K_M"}})
+                 for p in preds]
+    assert any("coordinator_frozen_at_f16" in f
+               for f in _gates(events, wrong_src).failures())
 
     # -- a backend error is infrastructure failure, never model quality ------
     errored = events + [dict(events[0], generation_error="HTTP 502 from llama-server")]

@@ -491,10 +491,19 @@ def main() -> int:
 
     rd = results_dir(args.results_dir)
     sd = rd / args.stage
+    # Follow the harness quarantine, matching score.py, so the documented
+    # dry-run flow does not dead-end with a bare "no scored.json" message.
+    if not (sd / "scored.json").exists() and (rd / "_harness" / args.stage /
+                                              "scored.json").exists():
+        rd = rd / "_harness"
+        sd = rd / args.stage
+        print(f"[analyze] NOTE reading the quarantined harness run at {sd}.")
     scored = read_json(sd / "scored.json", default=[]) or []
     summary = read_json(sd / "score_summary.json", default={}) or {}
     run_report = read_json(sd / "run_report.json", default={}) or {}
     provenance = read_json(rd / "provenance.json", default={}) or {}
+    if not provenance and rd.name == "_harness":
+        provenance = read_json(rd.parent / "provenance.json", default={}) or {}
     events = []
     ev_path = sd / "events.jsonl"
     if ev_path.exists():

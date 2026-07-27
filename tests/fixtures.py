@@ -147,6 +147,21 @@ def passing_events_and_predictions(
                 "question_id": qid, "precision": precision, "condition": condition,
                 "is_fixture": False, "dry_run": False,
                 "evidence_chunk_ids": [f"{d}::c0000" for d in document_ids],
+                # The frozen coordinator record every precision loaded. Byte
+                # identical across precisions and stamped with the precision
+                # that produced it -- that is what `coordinator_frozen_and_shared`
+                # and `coordinator_frozen_at_f16` check, since with freezing
+                # there is only ever ONE coordinator generation per question and
+                # a cross-precision prompt-hash comparison would pass vacuously.
+                "coordinator": {
+                    "shared_tasks": [{"task_id": "t1", "instruction": f"extract for {qid}",
+                                      "required_fields": ["entity"]}],
+                    "synthesis_directive": f"merge findings for {qid}",
+                    "frozen": True,
+                    "provenance": {"produced_by_precision": "F16",
+                                   "prompt_hash": f"coord_hash_{qid}",
+                                   "coordinator_fallback": False},
+                },
             })
     return events, preds
 

@@ -34,6 +34,26 @@ from gates import calibration_status  # noqa: E402
 from logging_utils import read_json, write_json  # noqa: E402
 
 
+def resolve_stage_dir(rd: Path, stage: str):
+    """Return `(results_root, stage_dir)`, following the harness quarantine.
+
+    `run_stage.py --dry-run` / `--backend fixture` write to
+    `<results>/_harness/<stage>/`. Without this, the documented flow
+    (`run_stage --dry-run` then `score.py --stage stage_a`) exits with
+    "no predictions at .../stage_a/predictions.json" and no hint that the rows
+    are one directory over.
+    """
+    if (rd / stage / "predictions.json").exists():
+        return rd, rd / stage
+    harness = rd / "_harness"
+    if (harness / stage / "predictions.json").exists():
+        print(f"[score] NOTE reading the quarantined harness run at "
+              f"{harness / stage}. These rows can never produce a scientific "
+              "result; they are watermarked and excluded from every aggregate.")
+        return harness, harness / stage
+    return rd, rd / stage
+
+
 def mean(vals: Iterable[Optional[float]]) -> Optional[float]:
     """Mean over the values that exist. None when nothing is scorable."""
     xs = [float(v) for v in vals if v is not None]
@@ -193,8 +213,7 @@ def main() -> int:
                     help="score only this condition (default: all, reported per condition)")
     args = ap.parse_args()
 
-    rd = results_dir(args.results_dir)
-    stage_dir = rd / args.stage
+    rd, stage_dir = resolve_stage_dir(results_dir(args.results_dir), args.stage)
     preds = read_json(stage_dir / "predictions.json", default=[]) or []
     gold_all = read_json(ROOT / args.gold)
     if not preds:
@@ -212,8 +231,13 @@ def main() -> int:
 
     # Chunk text for the content-level unsupported-claim measure, when the
     # frozen evidence is available.
+    # fixed_evidence.json and provenance.json are precision-agnostic and live at
+    # the real results root even for a quarantined harness run, so look one
+    # level up rather than silently degrading to the citation-format fallback.
     chunk_texts: Dict[str, str] = {}
     fixed = read_json(rd / "fixed_evidence.json", default={}) or {}
+    if not fixed and rd.name == "_harness":
+        fixed = read_json(rd.parent / "fixed_evidence.json", default={}) or {}
     for entry in fixed.values():
         for hit in entry.get("hits") or []:
             if hit.get("chunk_id"):

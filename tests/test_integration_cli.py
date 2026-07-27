@@ -120,8 +120,13 @@ def harness_run(mini_inputs, tmp_path_factory):
                "--stage-config", d / "stage_a.yaml")
 
     # Harness output is quarantined, so the downstream scripts have to be
-    # pointed at the quarantine directory explicitly.
+    # pointed at the quarantine directory explicitly. Checked here as well as
+    # in its own test, so a quarantine regression reports itself instead of
+    # surfacing as six confusing "file not found" errors downstream.
     harness = results / "_harness"
+    assert (harness / "stage_a" / "predictions.json").exists(), (
+        f"harness run did not write to {harness / 'stage_a'}; found instead: "
+        f"{sorted(p.name for p in results.rglob('predictions.json'))}")
     score = _run("score.py", "--stage", "stage_a", "--results-dir", harness,
                  "--gold", d / "gold.json")
     analyze = _run("analyze.py", "--stage", "stage_a", "--results-dir", harness,

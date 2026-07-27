@@ -19,9 +19,16 @@ Two rules the gates now enforce that they previously did not:
 """
 from __future__ import annotations
 
+import hashlib
+import json
 import os
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Sequence
+
+# The precision that produces the frozen coordinator. Mirrors
+# coordinator.FREEZE_PRECISION, duplicated here so gates.py stays importable
+# without pulling in the pipeline.
+FREEZE_PRECISION = "F16"
 
 ENGINEERING_STATUSES = ("HARNESS_READY", "HARNESS_FAILED", "REAL_MODEL_RUN_BLOCKED")
 
@@ -97,8 +104,11 @@ def _is_harness_record(rec: Dict[str, Any]) -> bool:
     return bool(rec.get("is_fixture") or rec.get("dry_run"))
 
 
+def _sha256_text(text: str) -> str:
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
 def _sha256_file(path: str) -> Optional[str]:
-    import hashlib
     try:
         h = hashlib.sha256()
         with open(path, "rb") as fh:
@@ -251,45 +261,91 @@ def evaluate_gates(events: Sequence[Dict[str, Any]],
              "is not meaningful and no scientific claim may rest on it"))
 
     # -- 6. the three blocks differed ONLY in precision ----------------------
-    samp = {}
-    off = {}
+    # Both gates below are ALWAYS appended and both require all three
+    # precisions to be represented. Building them only from the records that
+    # happen to carry a value reproduces exactly the vacuous-pass bug that
+    # `_parity` exists to prevent: drop `sampling_hash` from every Q4 event and
+    # a "one sampling configuration across all precisions" pass falls out of
+    # missing data. The offload gate was worse -- appended only `if off:`, so it
+    # vanished from the report entirely (leaving `passed` True) on precisely the
+    # CPU-only configuration where an offload asymmetry matters most.
+    samp: Dict[str, set] = {}
     for e in events:
-        if _is_harness_record(e):
+        # Only generation events carry a sampling config. A question_failure
+        # or other diagnostic record legitimately has none, and counting it as
+        # a blank would fail the gate for the honest recording of a failure.
+        if _is_harness_record(e) or not e.get("precision"):
             continue
-        pr = e.get("precision")
-        if not pr:
+        if e.get("is_failure_record") or e.get("role") == "question_failure":
             continue
-        if e.get("sampling_hash"):
-            samp.setdefault(pr, set()).add(e["sampling_hash"])
-    blocks = (prov.get("blocks") or {})
-    for pr, b in blocks.items():
-        layers = (b.get("gpu_offload") or {}).get("layers_offloaded")
-        if layers is not None:
-            off[pr] = layers
+        samp.setdefault(e["precision"], set()).add(e.get("sampling_hash") or "")
+    missing_samp = [pr for pr in REQUIRED_PRECISIONS if not samp.get(pr)]
+    blank_samp = [pr for pr, hs in samp.items() if "" in hs]
     all_samp = {h for hs in samp.values() for h in hs}
-    g.append(GateResult(
-        "sampling_identical_across_precisions", len(all_samp) == 1,
-        f"sampling_hash values seen: {sorted(all_samp)}" if len(all_samp) != 1
-        else f"one sampling configuration across all precisions ({all_samp.pop()[:12]}…)"))
-    if off:
+    if missing_samp or blank_samp:
         g.append(GateResult(
-            "gpu_offload_identical_across_precisions", len(set(off.values())) == 1,
-            f"layers offloaded per precision: {off}; a block that fell back to "
+            "sampling_identical_across_precisions", False,
+            f"no sampling_hash recorded for {sorted(set(missing_samp) | set(blank_samp))}; "
+            "sampling parity cannot be claimed on incomplete data"))
+    else:
+        g.append(GateResult(
+            "sampling_identical_across_precisions", len(all_samp) == 1,
+            f"sampling_hash values seen: {sorted(all_samp)}" if len(all_samp) != 1
+            else f"one sampling configuration across all precisions "
+                 f"({sorted(all_samp)[0][:12]}…)"))
+
+    blocks = prov.get("blocks") or {}
+    off = {pr: (blocks.get(pr) or {}).get("gpu_offload") for pr in REQUIRED_PRECISIONS}
+    missing_off = [pr for pr, o in off.items() if not o]
+    if missing_off:
+        g.append(GateResult(
+            "gpu_offload_identical_across_precisions", False,
+            f"no GPU-offload record for {missing_off}; a block whose offload is "
+            "unknown is not comparable to one whose offload is known, on quality "
+            "OR throughput"))
+    else:
+        sig = {pr: (bool(o.get("offload_detected")), o.get("layers_offloaded"))
+               for pr, o in off.items()}
+        same = len(set(sig.values())) == 1
+        g.append(GateResult(
+            "gpu_offload_identical_across_precisions", same,
+            f"offload differs per precision: {sig}; a block that fell back to "
             "partial CPU offload is not comparable on quality OR throughput"
-            if len(set(off.values())) != 1
-            else f"all precisions offloaded {next(iter(off.values()))} layers"))
+            if not same else
+            f"all precisions offloaded identically {next(iter(sig.values()))}"))
 
     # -- 7. parity ----------------------------------------------------------
-    # The coordinator is frozen (produced once, reused by every precision), so
-    # its prompt hash must match everywhere regardless of condition.
+    # The coordinator is produced ONCE at F16 and frozen, so there is exactly
+    # one coordinator generation per question and a prompt-hash comparison
+    # across precisions has nothing to compare -- checking it that way would
+    # pass vacuously for the same reason the old parity gates did. What must
+    # hold instead is that every precision consumed the SAME frozen record, and
+    # that F16 produced it.
     coord_slots: Dict[str, Dict[str, str]] = {}
-    for e in events:
-        if _is_harness_record(e) or e.get("role") != "coordinator":
-            continue
-        coord_slots.setdefault(str(e.get("question_id")), {})[
-            e.get("precision", "?")] = e.get("prompt_hash") or ""
+    produced_by: Dict[str, str] = {}
+    for p in real_preds:
+        c = p.get("coordinator") or {}
+        payload = json.dumps(
+            {"shared_tasks": c.get("shared_tasks") or [],
+             "synthesis_directive": c.get("synthesis_directive") or ""},
+            sort_keys=True)
+        qid = str(p["question_id"])
+        coord_slots.setdefault(qid, {})[p["precision"]] = _sha256_text(payload)
+        src = (c.get("provenance") or {}).get("produced_by_precision")
+        if src:
+            produced_by[qid] = src
+    g.append(_parity(coord_slots, "coordinator_frozen_and_shared"))
     if coord_slots:
-        g.append(_parity(coord_slots, "coordinator_prompt_parity"))
+        wrong_src = {q: s for q, s in produced_by.items() if s != FREEZE_PRECISION}
+        unrecorded = sorted(set(coord_slots) - set(produced_by))
+        g.append(GateResult(
+            "coordinator_frozen_at_f16", not wrong_src and not unrecorded,
+            (f"coordinator not produced at {FREEZE_PRECISION} for {wrong_src}"
+             if wrong_src else
+             f"no producing precision recorded for {unrecorded[:5]}")
+            if (wrong_src or unrecorded)
+            else f"all {len(produced_by)} coordinator records produced at "
+                 f"{FREEZE_PRECISION} and reused unchanged"))
 
     if condition in (None, "fixed_verified_evidence"):
         chunk_slots: Dict[str, Dict[str, str]] = {}
