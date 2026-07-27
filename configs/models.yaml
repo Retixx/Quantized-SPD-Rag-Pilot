@@ -3,20 +3,27 @@
 
 source:
   hf_repo: Qwen/Qwen2.5-3B-Instruct
-  # Pin this to the exact commit you downloaded; prepare_models.py records the
-  # resolved commit into results/provenance.json either way.
-  hf_revision: main
+  # PINNED. Verified against the HF API
+  # (https://huggingface.co/api/models/Qwen/Qwen2.5-3B-Instruct -> sha, and
+  # .../revision/<sha> returns 200). prepare_models.py re-resolves this against
+  # the Hub, or the local download cache when offline, and records both the
+  # configured and the resolved commit in results/provenance.json.
+  hf_revision: aa8e72537993ba99e69dfaafa59ed015b17504d1
   local_dir: models/hf/Qwen2.5-3B-Instruct
 
 llama_cpp:
   repo: https://github.com/ggml-org/llama.cpp
-  # Pin a commit for the real pilot. "master" is only acceptable for a smoke test.
-  commit: master
+  # PINNED. Commit of release tag b10142, verified to exist via
+  # https://api.github.com/repos/ggml-org/llama.cpp/git/ref/tags/b10142
+  # ("master" is only acceptable for a smoke test; it breaks reproducibility.)
+  commit: 3d1c3a8975f970a8e5f99ea648733087b52124c5
+  commit_tag: b10142
   build_dir: vendor/llama.cpp
   cmake_flags: "-DGGML_CUDA=ON -DLLAMA_CURL=OFF -DCMAKE_BUILD_TYPE=Release"
   server_binary: vendor/llama.cpp/build/bin/llama-server
   cli_binary: vendor/llama.cpp/build/bin/llama-cli
   quantize_binary: vendor/llama.cpp/build/bin/llama-quantize
+  imatrix_binary: vendor/llama.cpp/build/bin/llama-imatrix
   convert_script: vendor/llama.cpp/convert_hf_to_gguf.py
 
 models:
@@ -24,14 +31,49 @@ models:
     path: models/gguf/qwen2.5-3b-instruct-f16.gguf
     derived_from: source
     quantize_type: F16
+    # not quantized at all
+    use_imatrix: false
   Q8_0:
     path: models/gguf/qwen2.5-3b-instruct-q8_0.gguf
     derived_from: F16
     quantize_type: Q8_0
+    # round-to-nearest 8 bit; an imatrix changes nothing
+    use_imatrix: false
   Q4_K_M:
     path: models/gguf/qwen2.5-3b-instruct-q4_k_m.gguf
     derived_from: F16
     quantize_type: Q4_K_M
+    # k-quants at 4 bit degrade badly without one
+    use_imatrix: true
+
+# Importance-matrix calibration for the Q4_K_M build.
+#
+# LEAKAGE RULE: never calibrate on the evaluation questions. The default source
+# is a deterministic HELD-OUT slice of the MultiHop-RAG corpus -- articles that
+# no manifest question uses as evidence -- so nothing the pilot is scored on
+# contributes to the quantization. The calibration text, its sha256, the
+# document ids it was built from and the exclusion rule are all recorded in
+# results/provenance.json.
+imatrix:
+  enabled: true
+  # held_out_corpus | file
+  calibration_source: held_out_corpus
+  # Used only when calibration_source is "file" -- e.g. a standard wikitext-2 or
+  # groups_merged.txt calibration set attached as a Kaggle input dataset.
+  calibration_file: null
+  # Held-out slice: corpus documents sorted by document_id, MINUS every document
+  # referenced by data/pilot_manifest.json, take the first N.
+  calibration_documents: 128
+  calibration_chars_per_document: 6000
+  # Kept OUT of models/gguf/ so nothing that globs *.gguf for a model picks it up.
+  text_path: models/imatrix/calibration.txt
+  # llama-imatrix (>= the pinned commit) writes GGUF by default and switches to
+  # the legacy binary format for any other extension. Keep the .gguf suffix.
+  output_path: models/imatrix/qwen2.5-3b-instruct-f16.imatrix.gguf
+  output_format: gguf
+  chunks: 128
+  n_gpu_layers: 99
+  n_ctx: 512
 
 # Identical for every precision. The hash of this block is recorded per run.
 sampling:
@@ -41,8 +83,17 @@ sampling:
   min_p: 0.0
   repeat_penalty: 1.0
   seed: 1234
-  max_tokens: 512
   n_ctx: 8192
+  # Per-role generation budgets. There is deliberately NO scalar `max_tokens`
+  # key any more: the roles never shared one, so a global value was hashed into
+  # sampling_hash while no call site ever read it. Every role that generates
+  # must appear here.
+  max_tokens:
+    coordinator: 384
+    document_agent: 512
+    synthesizer: 384
+    # tiny probe generation, not a pilot role
+    preflight: 32
 
 backend:
   kind: llama-server        # llama-server | llama-cli | fixture (blocked by default)
@@ -52,6 +103,11 @@ backend:
 
 embedding:
   model: sentence-transformers/all-MiniLM-L6-v2
+  # VERIFIED real: commit "Remove deprecated (SEB) evaluation results section",
+  # 2025-03-06; .../revision/c9745ed1... returns 200. Deliberately NOT the
+  # current head (1110a243fdf4706b3f48f1d95db1a4f5529b4d41, 2026-06-01, a
+  # metadata-only change) -- the pin is what makes the frozen evidence
+  # reproducible across machines.
   revision: c9745ed1d9f207416be6d2e6f8de32d1f16199bf
   hash_fallback: false      # true ONLY for harness tests; recorded in provenance
   device: null

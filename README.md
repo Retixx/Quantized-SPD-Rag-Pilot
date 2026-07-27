@@ -15,6 +15,14 @@ quantization is out of scope until this characterization study finds a clear fai
 tested; the acceptance tests pass on fixtures. Launch Stage A on Kaggle to produce
 scientific results. See [Engineering vs. scientific status](#engineering-vs-scientific-status).
 
+> **Audit remediation.** A full pre-run audit found that the harness could not emit a
+> scientific outcome as written, and that six independent defects in the scorer all
+> handed lower precisions free credit — so an early Q4-beats-F16 result was an
+> artifact, not a finding. Those are fixed. Read
+> [`docs/AUDIT_FIXES.md`](docs/AUDIT_FIXES.md) before interpreting anything, and
+> [`docs/PROPOSAL_REVIEW.md`](docs/PROPOSAL_REVIEW.md) for the experiment-design
+> review. Known remaining limitations are listed at the bottom of this file.
+
 ---
 
 ## Architecture
@@ -54,6 +62,24 @@ not the task axis. Each document is an isolated retrieval universe.
 All logical agents call **one** model server per precision block. One physical model
 per block, never one per agent.
 
+**The coordination layer is frozen, not re-run per precision.** The coordinator runs
+once at F16; its `shared_tasks` and synthesis directive are written to
+`results/frozen_coordinator.json` and reused byte-identically by Q8_0 and Q4_K_M,
+exactly as the evidence is frozen. Two reasons:
+
+1. Its output is precision-dependent by construction, and it is formatted into every
+   document-agent prompt — so running it per precision made `prompt_hash_parity`
+   unsatisfiable and the harness structurally incapable of emitting a scientific
+   outcome.
+2. When the coordinator's JSON fails to parse, the harness substitutes a hand-written
+   fallback instruction set. Malformed JSON is the dominant Q4 failure mode, so the
+   fallback rescued precisely the precision that was failing, attenuating the gap
+   being measured.
+
+The measured estimand is therefore **quantization of the document agents and the
+synthesizer, under a fixed decomposition**. Quantizing the coordinator is a separate
+question and is not in scope here — see the limitations section.
+
 **Isolation is structural, not a filter.** Each agent receives only
 `store.get(document_id)`, a `PrivateIndex` holding that document's chunks and nothing
 else. `assert_isolation()` runs before any model loads and fails the run on violation.
@@ -71,11 +97,21 @@ Replaces the cancelled Loong pilot, where the 3B model sat near the task floor
 (3/12 F16, 4/12 Q8, 2/12 Q4). MultiHop-RAG plus partial-credit scoring should give
 the F16 baseline enough headroom to expose quantization effects.
 
-**Sampling.** Deterministic. Drop `null_query` (unanswerable by construction), keep
-questions whose evidence resolves to 2–4 distinct corpus documents, order by
-`sha256(SALT | question)`, fill Stage A first, then Stage B from the remaining pool.
-Same manifest on any machine. Width is derived from unique evidence document
-identifiers (`url`, falling back to `title`) and the derivation is logged per question.
+**Sampling.** Deterministic. Drop `null_query` (unanswerable by construction), **drop
+questions whose gold answer is yes/no**, keep questions whose evidence resolves to 2–4
+distinct corpus documents, order by `sha256(SALT | question)`, fill Stage A first, then
+Stage B from the remaining pool. Same manifest on any machine. Width is derived from
+unique evidence document identifiers (`url`, falling back to `title`) and the
+derivation is logged per question.
+
+**Why yes/no questions are excluded.** 59.6% of MultiHop-RAG's 2,255 answerable
+questions have gold answer `yes` or `no`, and the whole benchmark has only 105 unique
+answers (the top four cover 81%). The previous manifest ended up with **5 unique gold
+answers across 18 questions**. On a binary item a degraded model scores 50% by
+guessing, which compresses the F16–Q4 gap toward zero — in the direction of the
+hypothesis. The manifest now records `excluded_answers` alongside
+`excluded_question_types`, and `prepare_dataset.py` prints answer diversity so this
+cannot silently regress.
 
 Stage A and Stage B are **disjoint** — calibration items never re-enter the main test.
 
@@ -94,14 +130,19 @@ without `--force`. Never alter the question set after viewing model outputs.
 
 Maximum **72** predictions. The system stops cleanly after 18 or 54.
 
-**Stage A decision gate**, on F16 atomic-fact recall:
+**Stage A decision gate**, on F16 atomic-fact recall. Bands are half-open `[min, max)`,
+exhaustive over `[0, 1]`, with `configs/stage_a.yaml` as the single source of truth:
 
-| F16 recall | Status |
-| --- | --- |
-| < 0.50 | `BLOCKED — MODEL/BENCHMARK FLOOR` |
-| 0.50–0.70 | `MARGINAL — REVIEW PROMPTS AND FAILURES` |
-| 0.70–0.90 | `CALIBRATION PASS` |
-| > 0.95 | `POSSIBLE CEILING — ADD HARDER ITEMS OR DISTRACTORS` |
+| F16 recall | Status | Proceed |
+| --- | --- | --- |
+| `[0.00, 0.50)` | `BLOCKED — MODEL/BENCHMARK FLOOR` | no |
+| `[0.50, 0.70)` | `MARGINAL — REVIEW PROMPTS AND FAILURES` | no |
+| `[0.70, 0.95)` | `CALIBRATION PASS` | **yes** |
+| `[0.95, 1.00]` | `POSSIBLE CEILING — ADD HARDER ITEMS OR DISTRACTORS` | no |
+
+The previous table left `0.90–0.95` undefined and used `<=` boundaries, so a recall of
+exactly 0.70 was reported `MARGINAL — REVIEW PROMPTS AND FAILURES` while the outcome
+map simultaneously emitted a GO verdict for it.
 
 Screening thresholds. Not claims of formal statistical significance.
 
@@ -138,10 +179,20 @@ python -m pytest tests -q          # 25 tests, no GPU, no model, no network
 Fetch `MultiHopRAG.json` and `corpus.json` into `data/` (see `data/README.md`), then:
 
 ```bash
-python scripts/prepare_models.py --build-llama-cpp   # one F16 -> Q8_0 + Q4_K_M
 python scripts/prepare_dataset.py --data-dir data    # frozen manifest + seed rubric
+python scripts/prepare_models.py --build-llama-cpp --free-hf-weights
 python scripts/build_indexes.py --stage all          # private indexes + frozen evidence
 ```
+
+**Dataset preparation must run first.** The Q4_K_M importance matrix is calibrated on
+a held-out corpus slice — every corpus document *minus* every document the pilot
+evaluates on — so `prepare_models.py` needs `data/pilot_documents.json` to know what to
+exclude. Calibrating on the evaluation documents would be leakage.
+
+`--free-hf-weights` deletes the safetensors once the F16 GGUF exists. Without it the
+build peaks at **21.7 GB**, over Kaggle's 20 GB `/kaggle/working` cap; with it, 16.4 GB.
+`prepare_models.py` checks free space before starting and refuses rather than dying
+halfway through a quantization.
 
 ### Exact Kaggle steps
 
@@ -152,8 +203,12 @@ python scripts/build_indexes.py --stage all          # private indexes + frozen 
    `notebooks/kaggle_run.ipynb`.
 4. Edit the `SRC` path in cell 1 to point at your copy. The notebook copies it into
    `/kaggle/working` so it is writable.
-5. Run cells top to bottom. Stage A takes roughly 30–60 min after the ~30 min
-   one-time llama.cpp build and quantization.
+5. Run cells top to bottom. Stage A takes roughly 30–60 min after the one-time
+   llama.cpp build, imatrix generation and quantization (~40–60 min).
+
+**Kaggle caps GPU notebook execution at 9 hours, not 12** — the 12 h figure is the
+CPU-only limit. The notebook carries a per-step budget table and explicit stop points.
+`/kaggle/working` is capped at 20 GB; see `--free-hf-weights` above.
 
 Or, without the notebook:
 
@@ -203,8 +258,31 @@ facts per question, seeded from the dataset's own `evidence_list[].fact` and fla
 `rubric_reviewed: false` until the flags are cleared.
 
 Metrics: normalized exact match, token/char F1, atomic-fact recall and precision,
-required-document coverage, unsupported-claim rate, per-agent supported-fact recall,
-final completeness, synthesis loss.
+required-document coverage, uncited- and unsupported-claim rate, per-agent
+supported-fact recall, final completeness, synthesis loss.
+
+**Three rules every metric obeys** (asserted by `tests/test_units.py`):
+
+- **No metric may reward degradation.** Ratios with an empty denominator return
+  `None` and are excluded from aggregates, never `0.0`. Previously
+  `synthesis_loss` was `0.0` — the best possible value — when the agents recovered
+  nothing, and `any_required_branch_failed` evaluated `0 < 0 == False` when every
+  agent died, so total branch collapse scored perfectly on both.
+- **No metric may reward verbosity.** Fact coverage is measured inside a bounded
+  sliding window of the candidate, so appending text cannot raise a score. Quantization
+  changes output length, and a length-sensitive metric cannot separate that from
+  quality.
+- **Containment respects word boundaries, length and negation.** `contains_answer`
+  is a token-subsequence test, so gold `"no"` no longer matches inside `"not"` /
+  `"cannot"` / `"nothing"` and gold `"Yes"` no longer matches inside `"Yesterday"`.
+  A hit is suppressed when the prediction exceeds 60 tokens (a hit buried in a wall of
+  text is not an answer) or when every occurrence is preceded by a negation. Both
+  suppressions are recorded on the score, not applied silently.
+
+`answer_score` returns `score: None, scorable: false` for a question with an empty
+gold answer instead of awarding a blank prediction 1.0. Numeric disagreement zeroes a
+fact match rather than halving it. `atomic_fact_precision` no longer accepts a match in
+either direction — that made it unfalsifiable, scoring 1.0 for one-word "facts".
 
 ```
                  correct atomic facts in document-agent outputs but absent from final answer
@@ -245,12 +323,34 @@ reported as distinct verdicts:
 
 | Verdict | Meaning |
 | --- | --- |
-| `NON_INFERIOR_WITHIN_MARGIN` | CI upper bound ≤ margin **and** interval narrow |
-| `NOT_SIGNIFICANT_BUT_CI_TOO_WIDE` | inside the margin but the interval cannot support an equivalence claim |
+| `NON_INFERIOR_WITHIN_MARGIN` | CI upper bound ≤ margin, interval width ≤ 2× margin, **and** ≥ 4 paired differences are non-zero |
+| `NOT_SIGNIFICANT_BUT_CI_TOO_WIDE` | inside the margin but the interval — or the number of informative pairs — cannot support an equivalence claim |
 | `NOT_STATISTICALLY_SIGNIFICANT` | CI includes 0 but exceeds the margin |
 | `DEGRADATION_DETECTED` | CI excludes 0 and exceeds the margin |
 
 Default non-inferiority margin: **0.05** atomic-fact recall (`--ni-margin`).
+
+**A verdict needs information, not just a narrow interval.** With a coarse thresholded
+metric at n=6, many paired differences are exactly 0, and the resulting *zero-width*
+bootstrap CI used to satisfy the "interval narrow" test perfectly — so no information
+produced the strongest possible equivalence claim. Non-inferiority now additionally
+requires at least four non-zero pairs, and the width ceiling is tied to the margin
+(2×) rather than the previous hardcoded 0.30, which was six times the declared margin.
+
+**The compounding contrast carries an interval.** `GO_COMPOUNDING_DEGRADATION` is the
+paper's headline claim; it was previously emitted from a bare threshold on the
+difference of two point estimates while the CI computed alongside them was discarded.
+It now requires a stratified bootstrap CI on (gap at widest width − gap at narrowest)
+that excludes zero, **and** at least 3 paired questions in every width cell.
+
+**Loss metrics are not accuracy metrics.** `verdict` assumed higher-is-better, so on
+`synthesis_loss` it reported `DEGRADATION_DETECTED` when Q4 lost *fewer* facts. The
+direction is now explicit per metric.
+
+**Multiplicity is reported.** One contrast is confirmatory — F16 − Q4 on the primary
+metric, in the primary condition. Everything else is labelled exploratory and carries
+a Holm-adjusted companion p-value, so the reader can see how much of the family the
+outcome selector is scanning.
 
 ---
 
@@ -273,15 +373,37 @@ No scientific outcome is emitted unless every one passes:
 | --- | --- |
 | `real_inference_only` | zero fixture or dry-run records anywhere |
 | `backend_is_llama_cpp` | only `llama-server` / `llama-cli` produced output |
+| `no_generation_errors` | no call recorded a backend error — infrastructure failure is never scored as model quality |
 | `all_three_precisions_present` | F16, Q8_0, Q4_K_M all completed |
 | `nonzero_generations_per_precision` | each generated tokens |
-| `model_hashes_recorded` | three distinct 64-char sha256 |
-| `common_source_checkpoint` | one recorded F16 source for all variants |
+| `model_hashes_recorded` | three distinct 64-char sha256, **re-verified against the files on disk** |
+| `common_source_checkpoint` | each quantized variant records the sha256 of the F16 it was **actually derived from**, and it matches the F16 in use |
+| `embedding_is_real_model` | retrieval did not run on the hash-fallback embedder |
+| `sampling_identical_across_precisions` | one `sampling_hash` across all blocks |
+| `gpu_offload_identical_across_precisions` | no block silently fell back to partial CPU offload |
+| `coordinator_prompt_parity` | the frozen coordinator prompt is identical everywhere |
 | `fixed_evidence_chunk_parity` | identical chunk ids across precisions |
-| `prompt_hash_parity` | identical prompt hashes across precisions |
+| `prompt_hash_parity` | identical document-agent prompt hashes across precisions |
 | `stage_question_count_complete` | the stage's full question count at every precision |
 
 Any failure → **`SCIENTIFIC_RECOMMENDATION_NOT_AVAILABLE`**.
+
+Two properties the gates did not previously have:
+
+- **A gate cannot pass vacuously.** The parity gates compared
+  `len(set(values)) > 1` over whatever happened to be present, so a question that
+  ran at only one precision had one value and "passed" — parity was guaranteed
+  exactly when data was missing. Every parity gate now requires all three
+  precisions to be present, with a non-empty value, for every slot it checks.
+- **A gate checks the artifact, not a claim about it.** `model_hashes_recorded`
+  verified that three 64-character strings existed; it now re-hashes the GGUFs.
+  `common_source_checkpoint` was `bool(provenance["common_source"])` — any truthy
+  value — while `prepare_models.py` wrote that note unconditionally whenever an F16
+  file happened to exist, so a stale Q4 from a different checkpoint passed green.
+
+A `question_failure` record is tagged `is_failure_record`, **not** `is_fixture`.
+Previously, honestly recording one transient server timeout permanently voided the
+stage in an append-only event log — punishing correct behaviour harder than crashing.
 
 The fixture backend refuses to start unless `SPDQ_ALLOW_FIXTURE=1`, watermarks every
 output with `FIXTURE_NOT_REAL_MODEL_OUTPUT`, and flags every record `is_fixture: true`.
@@ -291,9 +413,20 @@ Those records are excluded from all aggregates and trip `real_inference_only`.
 
 ## Operational guarantees
 
+- **Harness runs are quarantined on disk.** `--dry-run` and `--backend fixture` write
+  to `results/_harness/<stage>/`. They previously shared `events.jsonl` and
+  `predictions.json` with real runs and, because `call_id` has no run-mode component,
+  a dry run followed by a real run in the same directory resume-skipped every
+  question, printed `18/18 predictions`, and never called the model once.
 - **Resumable.** One JSONL event written and `fsync`ed immediately after every
-  generation; deterministic `call_id`s; a torn final line from a hard kill is skipped,
-  not fatal. Rerun and it continues.
+  generation; deterministic `call_id`s; a torn *final* line from a hard kill is
+  skipped, not fatal. A corrupt line anywhere else is counted, warned about and
+  surfaced in `run_report.json` rather than silently dropping a completed call.
+  Rerun and it continues.
+- **A failed generation is retried, not cached.** A backend error raises
+  `BackendGenerationError`; the failing `call_id` is deliberately kept out of the
+  resume index so a rerun genuinely re-runs it, and the row is excluded from every
+  aggregate instead of being scored as an empty answer.
 - **No silent skips.** A failed question is logged as a `question_failure` event and
   listed in `run_report.json`.
 - **Deterministic ids** from content, never wall clock.
@@ -329,17 +462,82 @@ python -m pytest tests -q
 ```
 
 1. Each document agent can access only its assigned document
-2. Fixed-evidence chunk ids identical across precisions
-3. Prompt hashes match across precisions
-4. Three model files with recorded hashes and common provenance
+2. Fixed-evidence chunk ids identical across precisions, and the cache key changes when the corpus body changes
+3. The frozen coordinator makes document-agent prompt hashes match across precisions
+4. Three model files with recorded hashes, verified on disk, and a *matching* derived-from provenance chain
 5. Fixture data cannot enter scientific analysis
 6. Interrupted runs resume without duplicating predictions
 7. Malformed JSON logged and repaired at most once
-8. GPU offload detected and recorded
+8. GPU offload detected and recorded, and a CPU-only build does **not** report offload
 9. F16, Q8, Q4 all produce a real generation
 10. Stage-A recommendation unavailable until all 18 real predictions complete
 
+Plus one end-to-end integration test that drives
+`run_stage.py → score.py → analyze.py` through `subprocess` on a two-question manifest
+and asserts on the artifacts on disk. Four of the seven blocking bugs the audit found
+lived in the wiring *between* these scripts — each script wrote fields the next one
+never read — and every unit test passed throughout.
+
+Several of the original acceptance tests proved nothing and were rewritten. The
+clearest case: `test_3_prompt_hashes_match_across_precisions` never used its
+`precision` loop variable — it called two pure functions with identical arguments
+three times and asserted the outputs were equal. It could not fail, which is exactly
+why the unsatisfiable `prompt_hash_parity` gate shipped.
+
 ---
+
+## Known limitations
+
+Read these before quoting any number.
+
+**Design**
+
+- **Precision blocks always run F16 → Q8_0 → Q4_K_M.** Anything that drifts
+  monotonically over a session (thermal throttling, host page cache, co-tenant GPU
+  pressure) is confounded with precision in the *timing* metrics. The order is
+  recorded and flagged in every analysis; it is not counterbalanced. Question-order
+  rotation within a block does not address this, and under greedy decoding with
+  `cache_prompt: false` it cannot change any output.
+- **The coordinator is frozen at F16, so the coordination layer is not under test.**
+  Per-role precision assignment — "F16 orchestrator + Q4 workers" and its converse —
+  is not supported. It needs either two servers resident simultaneously or a re-load
+  between roles, which would destroy the latency measurement.
+- **Width is capped at 4.** MultiHop-RAG evidence spans 2–4 documents
+  (`{2: 1169, 3: 774, 4: 312}` usable candidates). Any claim about 8 or 16 branches
+  needs a different corpus or explicit distractor branches, which measure a different
+  quantity.
+- **Q4_K_M is built with an importance matrix** from a held-out corpus slice, never
+  from the evaluation questions. A non-imatrix K-quant inflates the F16→Q4 gap by an
+  unknown amount; `imatrix_used` and the imatrix sha256 are recorded in
+  `provenance.json`.
+
+**Measurement**
+
+- `contains_answer` remains vulnerable to *enumeration*: a prediction that lists
+  several candidate entities can contain the right one. Word boundaries, the 60-token
+  cap, the negation guard and dropping yes/no items remove the practical exploits, and
+  `token_f1` penalises it, but the primary metric (windowed atomic-fact recall) is the
+  one to trust. Human adjudication is the backstop.
+- `uncited_claim_rate` measures citation *format compliance*, not faithfulness — a
+  true fact that forgot its `chunk_ids` counts as uncited. `unsupported_claim_rate`
+  is the content-level measure and needs the chunk texts to be available. Format
+  compliance degrades sharply with quantization, so do not read the former as
+  hallucination.
+- The exploratory regression is fit on repeated measures (questions × precisions).
+  Its iid standard errors are anticonservative; the paired bootstrap is the
+  inferential result.
+- `assert_isolation()` now runs real cross-index query probes, but on a sampled subset
+  of index pairs when the store is large. The sample is deterministic and its size is
+  recorded.
+
+**Operational**
+
+- Kaggle caps **GPU** notebook execution at **9 hours**, not 12.
+- `/kaggle/working` is capped at 20 GB. The HF checkpoint plus three GGUFs plus a CUDA
+  build tree exceeds that; `prepare_models.py` frees the safetensors after conversion
+  and checks free space first.
+- `llama.cpp` and the HF revision must be pinned. An unpinned `master` will eventually
+  rename a CLI flag and kill the session at model-server startup.
 
 ## Attribution
 

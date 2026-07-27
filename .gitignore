@@ -9,3 +9,4 @@ data/corpus.json
 data/pilot_documents.json
 *.gguf
 *.zip
+.venv/

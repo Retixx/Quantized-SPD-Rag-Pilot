@@ -12,14 +12,30 @@ import sys
 import time
 import zipfile
 from pathlib import Path
-from typing import List
+from typing import Dict, List
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from config import results_dir  # noqa: E402
 from gates import NOT_AVAILABLE  # noqa: E402
-from logging_utils import read_json  # noqa: E402
+from logging_utils import read_json, sha256_text  # noqa: E402
+
+# Never bundled. score.py already promises the key is excluded; this is where
+# that promise is actually kept. Shipping it beside the blind worksheet defeats
+# the whole point of emitting a blind worksheet.
+DEBLINDING_FILES = {
+    "adjudication_key.json": "maps every blind sample_id back to its precision",
+}
+
+# Precision-labelled artefacts. Harmless in the researcher's bundle -- they ARE
+# the results -- but they de-blind the worksheet by answer-text matching, so a
+# bundle destined for a human adjudicator must not contain them.
+PRECISION_LABELLED_FILES = {
+    "predictions.json", "scored.json", "score_summary.json", "events.jsonl",
+    "run_report.json", "analysis.json", "gate.json", "RUN_REPORT.md",
+    "stage_c_selection.json", "isolation_report.json",
+}
 
 
 def render(stage: str, rd: Path) -> str:
@@ -135,6 +151,10 @@ def main() -> int:
     ap.add_argument("--stage", required=True, choices=["stage_a", "stage_b", "stage_c"])
     ap.add_argument("--results-dir", default=None)
     ap.add_argument("--out", default=None)
+    ap.add_argument("--for-adjudication", action="store_true",
+                    help="bundle ONLY what a blind human adjudicator may see: "
+                         "drops every precision-labelled artefact as well as "
+                         "adjudication_key.json")
     args = ap.parse_args()
 
     rd = results_dir(args.results_dir)
@@ -142,24 +162,62 @@ def main() -> int:
     md = render(args.stage, rd)
     (sd / "RUN_REPORT.md").write_text(md, encoding="utf-8")
 
+    excluded = dict(DEBLINDING_FILES)
+    if args.for_adjudication:
+        for name in sorted(PRECISION_LABELLED_FILES):
+            excluded[name] = ("precision-labelled; de-blinds the worksheet by "
+                              "answer-text matching")
+
     out = Path(args.out) if args.out else rd / f"{args.stage}_results.zip"
+    included: List[str] = []
+    skipped: List[Dict[str, str]] = []
+
+    def add(z: zipfile.ZipFile, path: Path, arcname: str) -> None:
+        reason = excluded.get(path.name)
+        if reason is not None:
+            skipped.append({"file": path.name, "reason": reason})
+            return
+        z.write(path, arcname=arcname)
+        included.append(arcname)
+
     with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
         for p in sorted(sd.rglob("*")):
             if p.is_file() and p.suffix != ".zip":
-                z.write(p, arcname=str(Path(args.stage) / p.relative_to(sd)))
+                add(z, p, str(Path(args.stage) / p.relative_to(sd)))
         for extra in ("provenance.json", "index_provenance.json",
                       "isolation_report.json", "kaggle_preflight.json"):
             f = rd / extra
             if f.exists():
-                z.write(f, arcname=extra)
+                add(z, f, extra)
         for f in sorted((rd / "server_logs").glob("*.log")) if (rd / "server_logs").exists() else []:
-            z.write(f, arcname=f"server_logs/{f.name}")
+            add(z, f, f"server_logs/{f.name}")
         for f in ("data/pilot_manifest.json", "data/gold_facts.json"):
             p = ROOT / f
             if p.exists():
-                z.write(p, arcname=f)
+                add(z, p, f)
+
+        manifest = {
+            "stage": args.stage,
+            "created_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "bundle_mode": "adjudication" if args.for_adjudication else "full",
+            "blinding": (
+                "adjudication_key.json is NEVER bundled: it maps every blind "
+                "sample_id back to its precision. In the default 'full' bundle "
+                "the precision-labelled results (predictions.json, scored.json, "
+                "events.jsonl, ...) ARE present, so this zip must not be handed "
+                "to a blind adjudicator — build that one with "
+                "`package_results.py --for-adjudication`."),
+            "included_files": sorted(included),
+            "excluded_files": sorted(skipped, key=lambda r: r["file"]),
+        }
+        blob = json.dumps(manifest, indent=2, sort_keys=True)
+        manifest["bundle_manifest_sha256"] = sha256_text(blob)
+        z.writestr("bundle_manifest.json",
+                   json.dumps(manifest, indent=2, sort_keys=True))
+
     print(md)
-    print(f"[package] {out}")
+    print(f"[package] {out} ({len(included)} files, "
+          f"{len(skipped)} withheld: {[r['file'] for r in skipped]})")
     return 0
 
 

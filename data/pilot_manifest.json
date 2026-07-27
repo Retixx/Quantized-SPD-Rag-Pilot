@@ -1,0 +1,1192 @@
+{
+  "answer_diversity": {
+    "min_answer_diversity_threshold": 0.5,
+    "stage_a": {
+      "max_answer_share": 0.3333,
+      "most_common_answers": [
+        {
+          "answer": "consistent",
+          "count": 2
+        },
+        {
+          "answer": "sam bankman fried",
+          "count": 2
+        },
+        {
+          "answer": "agreement",
+          "count": 1
+        },
+        {
+          "answer": "google",
+          "count": 1
+        }
+      ],
+      "n_questions": 6,
+      "n_unique_answers": 4,
+      "unique_answer_ratio": 0.6667
+    },
+    "stage_a_and_b": {
+      "max_answer_share": 0.3333,
+      "most_common_answers": [
+        {
+          "answer": "google",
+          "count": 6
+        },
+        {
+          "answer": "sam bankman fried",
+          "count": 4
+        },
+        {
+          "answer": "consistent",
+          "count": 2
+        },
+        {
+          "answer": "agreement",
+          "count": 1
+        },
+        {
+          "answer": "align",
+          "count": 1
+        }
+      ],
+      "n_questions": 18,
+      "n_unique_answers": 9,
+      "unique_answer_ratio": 0.5
+    },
+    "stage_b": {
+      "max_answer_share": 0.4167,
+      "most_common_answers": [
+        {
+          "answer": "google",
+          "count": 5
+        },
+        {
+          "answer": "sam bankman fried",
+          "count": 2
+        },
+        {
+          "answer": "align",
+          "count": 1
+        },
+        {
+          "answer": "chatgpt",
+          "count": 1
+        },
+        {
+          "answer": "hipgnosis songs fund",
+          "count": 1
+        }
+      ],
+      "n_questions": 12,
+      "n_unique_answers": 7,
+      "unique_answer_ratio": 0.5833
+    }
+  },
+  "benchmark": {
+    "dataset": "https://huggingface.co/datasets/yixuantt/MultiHopRAG",
+    "excluded_gold_answers": [
+      "no",
+      "yes"
+    ],
+    "excluded_gold_answers_rationale": "~60% of MultiHop-RAG's answerable questions have the literal gold answer 'yes' or 'no'. At pilot sample sizes that collapses the answer space to a handful of strings, makes exact match and token F1 uninformative, and lets a degenerate model score well by guessing. Disable with --include-yes-no.",
+    "excluded_question_types": [
+      "null_query"
+    ],
+    "name": "MultiHop-RAG",
+    "repository": "https://github.com/yixuantt/MultiHop-RAG",
+    "width_range": [
+      2,
+      4
+    ]
+  },
+  "corpus_index_report": {
+    "body_conflict_examples": [],
+    "corpus_records": 609,
+    "duplicate_identities": 0,
+    "duplicate_identities_with_differing_body": 0,
+    "duplicate_records_dropped": 0,
+    "examples": [],
+    "records_without_identity": 0,
+    "resolution": "last record wins",
+    "unique_identities": 609
+  },
+  "exclusions": {
+    "candidate_pool_answer_diversity": {
+      "max_answer_share": 0.3015,
+      "most_common_answers": [
+        {
+          "answer": "sam bankman fried",
+          "count": 275
+        },
+        {
+          "answer": "google",
+          "count": 212
+        },
+        {
+          "answer": "sam altman",
+          "count": 58
+        },
+        {
+          "answer": "consistent",
+          "count": 33
+        },
+        {
+          "answer": "apple",
+          "count": 23
+        }
+      ],
+      "n_questions": 912,
+      "n_unique_answers": 98,
+      "unique_answer_ratio": 0.1075
+    },
+    "excluded_by_gold_answer": 1343,
+    "excluded_by_question_type": 301,
+    "excluded_gold_answers": [
+      "no",
+      "yes"
+    ],
+    "excluded_question_types": [
+      "null_query"
+    ],
+    "question_type_counts": {
+      "comparison_query": 856,
+      "inference_query": 816,
+      "null_query": 301,
+      "temporal_query": 583
+    },
+    "rows_without_question_text": 0
+  },
+  "manifest_version": 2,
+  "pool_by_width": {
+    "2": 225,
+    "3": 375,
+    "4": 312
+  },
+  "pool_size": 912,
+  "salt": "quantized-spd-rag-pilot/v1",
+  "sampling_rule": "Exclude question_type in ['null_query'] (normalised: stripped and case-folded) and gold answers normalising to ['no', 'yes']. Keep questions whose evidence resolves to 2-4 distinct corpus documents. Order by sha256(SALT|question) ascending, tie-break question_id. Fill Stage A first, then Stage B from the remaining pool (disjoint). Deterministic on any machine; every question carries its order_key.",
+  "source_files": [
+    "data/MultiHopRAG.json",
+    "data/corpus.json"
+  ],
+  "stages": {
+    "stage_a": {
+      "expected_questions": 6,
+      "questions": [
+        {
+          "answer": "Consistent",
+          "documents": [
+            {
+              "body_sha256": "34a42f0b5b07af2b3f9e34db0b186717880e8469ea92e57235c8d4d1c7198e75",
+              "document_id": "doc_54afadd7f073",
+              "gold_facts": [
+                "In the above scenario, supply disruption will lead to higher inflation and central bankers will have to adjust their policies and hold rates higher for longer than anticipated."
+              ],
+              "identity": "https://www.thehindubusinessline.com/portfolio/personal-finance/dissecting-impact-of-israel-hamas-conflict-on-markets/article67413157.ece",
+              "source": "Business Line",
+              "title": "Dissecting impact of Israel-Hamas conflict on markets ",
+              "url": "https://www.thehindubusinessline.com/portfolio/personal-finance/dissecting-impact-of-israel-hamas-conflict-on-markets/article67413157.ece"
+            },
+            {
+              "body_sha256": "95a496f96cfe13d0af8c39c1414010fc20ced6c08ede7f7472e45f3c4b3eeebd",
+              "document_id": "doc_b4520d0798a4",
+              "gold_facts": [
+                "Over the past 18 months, the Fed’s current chair, Jerome Powell, has been following a very similar game plan to Volcker’s, raising interest rates aggressively to quash inflation."
+              ],
+              "identity": "https://fortune.com/2023/10/06/home-price-outlook-bank-of-america-housing-recession-turbulence-1980s-not-2008/",
+              "source": "Fortune",
+              "title": "Buckle up for more ‘turbulence’ in the housing market, BofA says—it’s a housing recession, 1980s style",
+              "url": "https://fortune.com/2023/10/06/home-price-outlook-bank-of-america-housing-recession-turbulence-1980s-not-2008/"
+            }
+          ],
+          "order_key": "01dd1aa8200532e8b13932e7ad39ebe4819ec1bf951e5dd34c9709219349ce33",
+          "question": "After Jerome Powell's aggressive interest rate hikes mentioned by 'Fortune' on October 6th, 2023, did 'Business Line' report on October 14th, 2023, suggest that central bankers' stance on interest rates was consistent or inconsistent with Powell's approach as reported by 'Fortune'?",
+          "question_id": "q_2534dd56bb05",
+          "question_type": "temporal_query",
+          "width": 2,
+          "width_derivation": {
+            "derivation": "width = count of unique evidence 'url' (fallback 'title') values in evidence_list that resolve to a corpus document",
+            "evidence_identities": [
+              "https://www.thehindubusinessline.com/portfolio/personal-finance/dissecting-impact-of-israel-hamas-conflict-on-markets/article67413157.ece",
+              "https://fortune.com/2023/10/06/home-price-outlook-bank-of-america-housing-recession-turbulence-1980s-not-2008/"
+            ],
+            "resolved_identities": [
+              "https://www.thehindubusinessline.com/portfolio/personal-finance/dissecting-impact-of-israel-hamas-conflict-on-markets/article67413157.ece",
+              "https://fortune.com/2023/10/06/home-price-outlook-bank-of-america-housing-recession-turbulence-1980s-not-2008/"
+            ],
+            "unresolved_identities": []
+          }
+        },
+        {
+          "answer": "Consistent",
+          "documents": [
+            {
+              "body_sha256": "754a8303832c1a4a3175ec065ad5b378078afe185689b7bdb868ebdefe744451",
+              "document_id": "doc_0790c08d63c2",
+              "gold_facts": [
+                "Testing pregnant women for GBS allows for the timely administration of antibiotics during labour, significantly reducing the risk of neonatal infections,” Daye tells us."
+              ],
+              "identity": "https://techcrunch.com/2023/11/06/daye-sti-testing/",
+              "source": "TechCrunch",
+              "title": "Daye now offers tampon-based STI screening — starting in the UK",
+              "url": "https://techcrunch.com/2023/11/06/daye-sti-testing/"
+            },
+            {
+              "body_sha256": "7b40e5495363bb0eb401428d3fc6c5062ef80c44b87b0eec2737b8bd6770fbc0",
+              "document_id": "doc_dcf4e36f3d85",
+              "gold_facts": [
+                "But it does suggest that \"cannabis use should be avoided during pregnancy to optimize maternal and neonatal [newborn] outcomes,\" the study authors wrote in the report."
+              ],
+              "identity": "https://www.livescience.com/health/fertility-pregnancy-birth/cannabis-use-in-pregnancy-linked-to-small-birth-size-other-poor-outcomes",
+              "source": "Live Science: The Most Interesting Articles",
+              "title": "Cannabis use in pregnancy linked to small birth size, other poor outcomes",
+              "url": "https://www.livescience.com/health/fertility-pregnancy-birth/cannabis-use-in-pregnancy-linked-to-small-birth-size-other-poor-outcomes"
+            }
+          ],
+          "order_key": "0246a9236dfa077bf41909d8759989ce9a9f9f91c89a6f7229db678ba7002a33",
+          "question": "After TechCrunch reported on Daye's tampon-based STI screening for GBS testing in pregnant women on November 6, 2023, and Live Science: The Most Interesting Articles highlighted the risks of cannabis use during pregnancy on December 13, 2023, does the advice from both sources regarding the importance of maternal health interventions during pregnancy remain consistent or inconsistent?",
+          "question_id": "q_aa1ca9de397d",
+          "question_type": "temporal_query",
+          "width": 2,
+          "width_derivation": {
+            "derivation": "width = count of unique evidence 'url' (fallback 'title') values in evidence_list that resolve to a corpus document",
+            "evidence_identities": [
+              "https://techcrunch.com/2023/11/06/daye-sti-testing/",
+              "https://www.livescience.com/health/fertility-pregnancy-birth/cannabis-use-in-pregnancy-linked-to-small-birth-size-other-poor-outcomes"
+            ],
+            "resolved_identities": [
+              "https://techcrunch.com/2023/11/06/daye-sti-testing/",
+              "https://www.livescience.com/health/fertility-pregnancy-birth/cannabis-use-in-pregnancy-linked-to-small-birth-size-other-poor-outcomes"
+            ],
+            "unresolved_identities": []
+          }
+        },
+        {
+          "answer": "Agreement",
+          "documents": [
+            {
+              "body_sha256": "8ba9fb5b27c895bee7e193a7377e1c2d47b24765ef133d3479fd0faeb0393481",
+              "document_id": "doc_7a01247c40f7",
+              "gold_facts": [
+                "United have also conceded 14 goals in the Champions League group stages, a new and unwanted record for the club that could get worse when they face Bayern in the final match."
+              ],
+              "identity": "https://talksport.com/football/1659923/man-utd-defending-scars-champions-league/",
+              "source": "TalkSport",
+              "title": "Leaky defence ‘isn’t good enough’ and ‘scars’ grow from throwing away leads – It’s all going wrong for Manchester United in Europe",
+              "url": "https://talksport.com/football/1659923/man-utd-defending-scars-champions-league/"
+            },
+            {
+              "body_sha256": "02ff6d8cf81280fabac4d73fe9163e17861e1390c0bad98a36c2ed02fbd26818",
+              "document_id": "doc_0edb6b5ba298",
+              "gold_facts": [
+                "When it comes to pressure in the Champions League of late, United do not cope well and there are few events trickier than a night in Istanbul."
+              ],
+              "identity": "https://www.theguardian.com/football/2023/nov/27/manchester-united-head-for-istanbul-with-good-intentions-but-bad-memories-galatasaray-champions-league",
+              "source": "The Guardian",
+              "title": "Manchester United face Galatasaray with high hopes but bad memories",
+              "url": "https://www.theguardian.com/football/2023/nov/27/manchester-united-head-for-istanbul-with-good-intentions-but-bad-memories-galatasaray-champions-league"
+            }
+          ],
+          "order_key": "0317586b8b6d6a7134b7f5fd59a10dc1220eab9a1524556b7d2e003e5ab3a6a4",
+          "question": "After The Guardian reported on Manchester United's challenges with pressure in the Champions League on November 27, did TalkSport's report on November 29 about Manchester United's leaky defence and setting an unwanted record for conceding goals in the group stages show agreement or disagreement with The Guardian's assessment of Manchester United's performance in Europe?",
+          "question_id": "q_1d56cef09f1c",
+          "question_type": "temporal_query",
+          "width": 2,
+          "width_derivation": {
+            "derivation": "width = count of unique evidence 'url' (fallback 'title') values in evidence_list that resolve to a corpus document",
+            "evidence_identities": [
+              "https://talksport.com/football/1659923/man-utd-defending-scars-champions-league/",
+              "https://www.theguardian.com/football/2023/nov/27/manchester-united-head-for-istanbul-with-good-intentions-but-bad-memories-galatasaray-champions-league"
+            ],
+            "resolved_identities": [
+              "https://talksport.com/football/1659923/man-utd-defending-scars-champions-league/",
+              "https://www.theguardian.com/football/2023/nov/27/manchester-united-head-for-istanbul-with-good-intentions-but-bad-memories-galatasaray-champions-league"
+            ],
+            "unresolved_identities": []
+          }
+        },
+        {
+          "answer": "Sam Bankman-Fried",
+          "documents": [
+            {
+              "body_sha256": "7547a91c0f876b858db234b2457d32c9e10413dc05e8f08e0ea78c61bd0dcbcc",
+              "document_id": "doc_70808d4f68bc",
+              "gold_facts": [
+                "But “all of that, all of it, was built on lies,” Rehn declared to the jury.",
+                "And after Bankman-Fried left Jane Street, the high-frequency trading firm where the former billionaire got his start in finance after MIT, he persuaded Yedidia to join him as a trader at Alameda and then as a developer at FTX."
+              ],
+              "identity": "https://fortune.com/crypto/2023/10/04/sam-bankman-fried-lawyers-opening-statements-witnesses-marc-antoine-julliard-adam-yedidia-ftx-commodities-trader-developer/",
+              "source": "Fortune",
+              "title": "Is Sam Bankman-Fried a bad ‘man’ or a good ‘boy’? Lawyers swap opening statements before first witnesses take the stand",
+              "url": "https://fortune.com/crypto/2023/10/04/sam-bankman-fried-lawyers-opening-statements-witnesses-marc-antoine-julliard-adam-yedidia-ftx-commodities-trader-developer/"
+            },
+            {
+              "body_sha256": "00e80e39fe1eb9d514ea99979142d765315b349e08f3559d5dd11b90b0880103",
+              "document_id": "doc_22a798cdccff",
+              "gold_facts": [
+                "It was not until Judge Lewis Kaplan intervened to ask if Bankman-Fried had ever been told by Yedidia about that money, in words or in substance, that Bankman-Fried admitted he’d been told."
+              ],
+              "identity": "https://www.theverge.com/2023/10/31/23940814/sam-bankman-fried-ftx-alameda-customer-funds-fraud-trial",
+              "source": "The Verge",
+              "title": "Sam Bankman-Fried didn’t ask where the $8 billion went",
+              "url": "https://www.theverge.com/2023/10/31/23940814/sam-bankman-fried-ftx-alameda-customer-funds-fraud-trial"
+            },
+            {
+              "body_sha256": "5b136a9bad6732b58956655c3e56a7e481b90281a9bccbf43cfb69d40eee0212",
+              "document_id": "doc_13d624f0262a",
+              "gold_facts": [
+                "The prosecution painted Bankman-Fried as someone who knowingly committed fraud to achieve great wealth, power and influence, while the defense countered that the FTX founder acted in good faith, never meant to commit fraud or steal and basically got in over his head."
+              ],
+              "identity": "https://techcrunch.com/2023/10/07/sam-altman-backs-a-teens-startup-google-unveils-the-pixel-8-and-tiktok-tests-an-ad-free-tier/",
+              "source": "TechCrunch",
+              "title": "Sam Altman backs teens’ startup, Google unveils the Pixel 8 and TikTok tests an ad-free tier",
+              "url": "https://techcrunch.com/2023/10/07/sam-altman-backs-a-teens-startup-google-unveils-the-pixel-8-and-tiktok-tests-an-ad-free-tier/"
+            }
+          ],
+          "order_key": "003209f884ed4b349d711cb096ee7c515694aacb69cb5819838c97be50eb22ab",
+          "question": "Who is the individual that was involved in the creation of FTX, persuaded a former colleague from Jane Street to join his ventures, and is accused of achieving wealth through fraudulent means, a situation that was highlighted after a judge's intervention?",
+          "question_id": "q_791a92f706f5",
+          "question_type": "inference_query",
+          "width": 3,
+          "width_derivation": {
+            "derivation": "width = count of unique evidence 'url' (fallback 'title') values in evidence_list that resolve to a corpus document",
+            "evidence_identities": [
+              "https://fortune.com/crypto/2023/10/04/sam-bankman-fried-lawyers-opening-statements-witnesses-marc-antoine-julliard-adam-yedidia-ftx-commodities-trader-developer/",
+              "https://www.theverge.com/2023/10/31/23940814/sam-bankman-fried-ftx-alameda-customer-funds-fraud-trial",
+              "https://techcrunch.com/2023/10/07/sam-altman-backs-a-teens-startup-google-unveils-the-pixel-8-and-tiktok-tests-an-ad-free-tier/"
+            ],
+            "resolved_identities": [
+              "https://fortune.com/crypto/2023/10/04/sam-bankman-fried-lawyers-opening-statements-witnesses-marc-antoine-julliard-adam-yedidia-ftx-commodities-trader-developer/",
+              "https://www.theverge.com/2023/10/31/23940814/sam-bankman-fried-ftx-alameda-customer-funds-fraud-trial",
+              "https://techcrunch.com/2023/10/07/sam-altman-backs-a-teens-startup-google-unveils-the-pixel-8-and-tiktok-tests-an-ad-free-tier/"
+            ],
+            "unresolved_identities": []
+          }
+        },
+        {
+          "answer": "Google",
+          "documents": [
+            {
+              "body_sha256": "bf2786eeccd4ced8d0effb76acffd95d5fa582d4137123a5f5f477bf90ed009d",
+              "document_id": "doc_3465dba0761c",
+              "gold_facts": [
+                "“Certainly there wasn’t a valid alternative to Google at the time,” Cue said."
+              ],
+              "identity": "https://www.theverge.com/2023/9/26/23891037/apple-eddy-cue-testimony-us-google",
+              "source": "The Verge",
+              "title": "Apple defends Google Search deal in court: ‘There wasn’t a valid alternative’",
+              "url": "https://www.theverge.com/2023/9/26/23891037/apple-eddy-cue-testimony-us-google"
+            },
+            {
+              "body_sha256": "cdbf5e05378940a4960a2ff4ca5b278d8fa8473e5d881b86d7bef76511d7a299",
+              "document_id": "doc_31d0b63048c6",
+              "gold_facts": [
+                "Google compared the performance of Gemini Pro to GPT-4’s predecessor, GPT-3.5, a model that’s around a year old."
+              ],
+              "identity": "https://techcrunch.com/2023/12/07/early-impressions-of-googles-gemini-arent-great/",
+              "source": "TechCrunch",
+              "title": "Early impressions of Google’s Gemini aren’t great",
+              "url": "https://techcrunch.com/2023/12/07/early-impressions-of-googles-gemini-arent-great/"
+            },
+            {
+              "body_sha256": "3c8d3acaf5086a5a3ff546071a1be9c728c76ee582a688390917fb2d987f796a",
+              "document_id": "doc_d7ccaaaebb29",
+              "gold_facts": [
+                "The case, filed by Arkansas-based publisher Helena World Chronicle, argues that Google “siphons off” news publishers’ content, their readers and ad revenue through anticompetitive means."
+              ],
+              "identity": "https://techcrunch.com/2023/12/15/news-publisher-files-class-action-antitrust-suit-against-google-citing-ais-harms-to-their-bottom-line/",
+              "source": "TechCrunch",
+              "title": "News publisher files class action antitrust suit against Google, citing AI’s harms to their bottom line",
+              "url": "https://techcrunch.com/2023/12/15/news-publisher-files-class-action-antitrust-suit-against-google-citing-ais-harms-to-their-bottom-line/"
+            }
+          ],
+          "order_key": "00b913010627003b74efaa3c35edcaf0a78e44b69c7d3d1d1744ed29b68cec0d",
+          "question": "Which company, recently compared for its Gemini Pro's performance to OpenAI's GPT-3.5 by TechCrunch, was also described by The Verge as having no valid alternative for search engine services during a court defense, and is the subject of a class action antitrust suit by news publishers for allegedly harming their bottom line through anticompetitive practices?",
+          "question_id": "q_5019259f0f23",
+          "question_type": "inference_query",
+          "width": 3,
+          "width_derivation": {
+            "derivation": "width = count of unique evidence 'url' (fallback 'title') values in evidence_list that resolve to a corpus document",
+            "evidence_identities": [
+              "https://www.theverge.com/2023/9/26/23891037/apple-eddy-cue-testimony-us-google",
+              "https://techcrunch.com/2023/12/07/early-impressions-of-googles-gemini-arent-great/",
+              "https://techcrunch.com/2023/12/15/news-publisher-files-class-action-antitrust-suit-against-google-citing-ais-harms-to-their-bottom-line/"
+            ],
+            "resolved_identities": [
+              "https://www.theverge.com/2023/9/26/23891037/apple-eddy-cue-testimony-us-google",
+              "https://techcrunch.com/2023/12/07/early-impressions-of-googles-gemini-arent-great/",
+              "https://techcrunch.com/2023/12/15/news-publisher-files-class-action-antitrust-suit-against-google-citing-ais-harms-to-their-bottom-line/"
+            ],
+            "unresolved_identities": []
+          }
+        },
+        {
+          "answer": "Sam Bankman-Fried",
+          "documents": [
+            {
+              "body_sha256": "7547a91c0f876b858db234b2457d32c9e10413dc05e8f08e0ea78c61bd0dcbcc",
+              "document_id": "doc_70808d4f68bc",
+              "gold_facts": [
+                "But “all of that, all of it, was built on lies,” Rehn declared to the jury."
+              ],
+              "identity": "https://fortune.com/crypto/2023/10/04/sam-bankman-fried-lawyers-opening-statements-witnesses-marc-antoine-julliard-adam-yedidia-ftx-commodities-trader-developer/",
+              "source": "Fortune",
+              "title": "Is Sam Bankman-Fried a bad ‘man’ or a good ‘boy’? Lawyers swap opening statements before first witnesses take the stand",
+              "url": "https://fortune.com/crypto/2023/10/04/sam-bankman-fried-lawyers-opening-statements-witnesses-marc-antoine-julliard-adam-yedidia-ftx-commodities-trader-developer/"
+            },
+            {
+              "body_sha256": "b187e5568b28a72bf2f467ba52f299e437009df3ed4b96003f0cfe52530d1243",
+              "document_id": "doc_0f89e922841f",
+              "gold_facts": [
+                "During cross-examination, Huang said Paradigm pressed Bankman-Fried on the board issue and was told he didn't want investors as directors but he did plan on having a board with experts."
+              ],
+              "identity": "https://www.cnbc.com/2023/10/06/sex-signal-messages-and-sabotaging-ftxs-code-sbf-criminal-trial.html",
+              "source": "Cnbc | World Business News Leader",
+              "title": "Sex, Signal messages, and sabotaging FTX's code: SBF execs and Bahamas roommates tell all in court",
+              "url": "https://www.cnbc.com/2023/10/06/sex-signal-messages-and-sabotaging-ftxs-code-sbf-criminal-trial.html"
+            },
+            {
+              "body_sha256": "ad2540d67a2c96f9f2f123b6006561151cae533ea433cf4cf68546291335cf61",
+              "document_id": "doc_a9be711178bf",
+              "gold_facts": [
+                "He was the richest person in the world under 30 [and] he was going to spend it to save humanity from extinction,” he said."
+              ],
+              "identity": "https://techcrunch.com/2023/10/02/sbf-60-minutes/",
+              "source": "TechCrunch",
+              "title": "SBF, riding high on FTX, reportedly offered $5B to Trump to cancel President re-run",
+              "url": "https://techcrunch.com/2023/10/02/sbf-60-minutes/"
+            },
+            {
+              "body_sha256": "5b136a9bad6732b58956655c3e56a7e481b90281a9bccbf43cfb69d40eee0212",
+              "document_id": "doc_13d624f0262a",
+              "gold_facts": [
+                "The prosecution painted Bankman-Fried as someone who knowingly committed fraud to achieve great wealth, power and influence, while the defense countered that the FTX founder acted in good faith, never meant to commit fraud or steal and basically got in over his head."
+              ],
+              "identity": "https://techcrunch.com/2023/10/07/sam-altman-backs-a-teens-startup-google-unveils-the-pixel-8-and-tiktok-tests-an-ad-free-tier/",
+              "source": "TechCrunch",
+              "title": "Sam Altman backs teens’ startup, Google unveils the Pixel 8 and TikTok tests an ad-free tier",
+              "url": "https://techcrunch.com/2023/10/07/sam-altman-backs-a-teens-startup-google-unveils-the-pixel-8-and-tiktok-tests-an-ad-free-tier/"
+            }
+          ],
+          "order_key": "01a425e6869c5cee0ff15c471db95a0c6c8073b7e956eb71a309cd2ea1ba4d3f",
+          "question": "Who is the individual under 30, once considered the wealthiest in that age group, who is accused of building a cryptocurrency exchange's success on falsehoods and expressed intentions to form an expert board for the company, despite a preference against investor directors, while also facing allegations of committing fraud for personal gain, power, and influence?",
+          "question_id": "q_47c503113d45",
+          "question_type": "inference_query",
+          "width": 4,
+          "width_derivation": {
+            "derivation": "width = count of unique evidence 'url' (fallback 'title') values in evidence_list that resolve to a corpus document",
+            "evidence_identities": [
+              "https://fortune.com/crypto/2023/10/04/sam-bankman-fried-lawyers-opening-statements-witnesses-marc-antoine-julliard-adam-yedidia-ftx-commodities-trader-developer/",
+              "https://www.cnbc.com/2023/10/06/sex-signal-messages-and-sabotaging-ftxs-code-sbf-criminal-trial.html",
+              "https://techcrunch.com/2023/10/02/sbf-60-minutes/",
+              "https://techcrunch.com/2023/10/07/sam-altman-backs-a-teens-startup-google-unveils-the-pixel-8-and-tiktok-tests-an-ad-free-tier/"
+            ],
+            "resolved_identities": [
+              "https://fortune.com/crypto/2023/10/04/sam-bankman-fried-lawyers-opening-statements-witnesses-marc-antoine-julliard-adam-yedidia-ftx-commodities-trader-developer/",
+              "https://www.cnbc.com/2023/10/06/sex-signal-messages-and-sabotaging-ftxs-code-sbf-criminal-trial.html",
+              "https://techcrunch.com/2023/10/02/sbf-60-minutes/",
+              "https://techcrunch.com/2023/10/07/sam-altman-backs-a-teens-startup-google-unveils-the-pixel-8-and-tiktok-tests-an-ad-free-tier/"
+            ],
+            "unresolved_identities": []
+          }
+        }
+      ]
+    },
+    "stage_b": {
+      "expected_questions": 12,
+      "questions": [
+        {
+          "answer": "Align",
+          "documents": [
+            {
+              "body_sha256": "8b04f4eedea821dcfa7adf0968d6847c24ebcb9479bffebb6fe0c5e551f9246b",
+              "document_id": "doc_f13c45ed6a65",
+              "gold_facts": [
+                "If the debt continues to rise more than the economy, risks will increase, and the government may “crowd out” private investment as it competes with the private sector for funds to service its debt."
+              ],
+              "identity": "https://www.bworldonline.com/economy/2023/11/05/555506/strategizing-for-sustainable-development/",
+              "source": "Business World",
+              "title": "Strategizing for sustainable development",
+              "url": "https://www.bworldonline.com/economy/2023/11/05/555506/strategizing-for-sustainable-development/"
+            },
+            {
+              "body_sha256": "54cbdfe0042f9bb0df5bb3b2a5baf5d1b3b1bc5ac36a8fc757a7b65e40c8e50f",
+              "document_id": "doc_6644717101e4",
+              "gold_facts": [
+                "And yet, “We worry about our debt-to-GDP ratio in the Philippines, as it stands at about 63% and that’s a little high for us and it is not ideal,” President Ferdinand Marcos, Jr. told members of the US-ASEAN Business Council who visited Malacañang (ABS-CBN, Aug. 9, 2023)."
+              ],
+              "identity": "https://www.bworldonline.com/opinion/2023/10/09/550317/a-deficit-budget-for-2024/",
+              "source": "Business World",
+              "title": "A deficit budget for 2024",
+              "url": "https://www.bworldonline.com/opinion/2023/10/09/550317/a-deficit-budget-for-2024/"
+            }
+          ],
+          "order_key": "03503073fe2a6882d9da550c5709cebdb42f86a4da7f334c78c4a0b84a99e825",
+          "question": "Does the 'Business World' article suggesting that the 'Philippines government' could hinder private investment due to rising national debt align with the concern over the 'Philippines' debt-to-GDP ratio' expressed in another 'Business World' article, or do they present differing implications for the country's economy?",
+          "question_id": "q_1a82e2bb0397",
+          "question_type": "comparison_query",
+          "width": 2,
+          "width_derivation": {
+            "derivation": "width = count of unique evidence 'url' (fallback 'title') values in evidence_list that resolve to a corpus document",
+            "evidence_identities": [
+              "https://www.bworldonline.com/economy/2023/11/05/555506/strategizing-for-sustainable-development/",
+              "https://www.bworldonline.com/opinion/2023/10/09/550317/a-deficit-budget-for-2024/"
+            ],
+            "resolved_identities": [
+              "https://www.bworldonline.com/economy/2023/11/05/555506/strategizing-for-sustainable-development/",
+              "https://www.bworldonline.com/opinion/2023/10/09/550317/a-deficit-budget-for-2024/"
+            ],
+            "unresolved_identities": []
+          }
+        },
+        {
+          "answer": "Google",
+          "documents": [
+            {
+              "body_sha256": "dfc5f14c1b3c2a3df519a7813998b5fa20dce2c2e625da9f36a7b424631a6cf1",
+              "document_id": "doc_fd327531641b",
+              "gold_facts": [
+                "She admits that she may have misinterpreted the evidence, but maintains that Google manipulates Search to maximise ad revenue.",
+                "Wired removed the article for not meeting its standards, but the degree to which it was shared on social media and boosted in write-ups at other outlets shows just how willing people are to accept foul play on Google’s part."
+              ],
+              "identity": "https://www.theage.com.au/technology/is-google-search-better-than-the-rest-and-is-that-fair-20231012-p5ebsk.html?ref=rss&utm_medium=rss&utm_source=rss_technology",
+              "source": "The Age",
+              "title": "Is Google Search better than the rest? And is that fair?",
+              "url": "https://www.theage.com.au/technology/is-google-search-better-than-the-rest-and-is-that-fair-20231012-p5ebsk.html?ref=rss&utm_medium=rss&utm_source=rss_technology"
+            },
+            {
+              "body_sha256": "3c8d3acaf5086a5a3ff546071a1be9c728c76ee582a688390917fb2d987f796a",
+              "document_id": "doc_d7ccaaaebb29",
+              "gold_facts": [
+                "The case, filed by Arkansas-based publisher Helena World Chronicle, argues that Google “siphons off” news publishers’ content, their readers and ad revenue through anticompetitive means."
+              ],
+              "identity": "https://techcrunch.com/2023/12/15/news-publisher-files-class-action-antitrust-suit-against-google-citing-ais-harms-to-their-bottom-line/",
+              "source": "TechCrunch",
+              "title": "News publisher files class action antitrust suit against Google, citing AI’s harms to their bottom line",
+              "url": "https://techcrunch.com/2023/12/15/news-publisher-files-class-action-antitrust-suit-against-google-citing-ais-harms-to-their-bottom-line/"
+            }
+          ],
+          "order_key": "058943695fea64f351d8907cda4b5309e0cb27c93c3d4760e441a2caba69683e",
+          "question": "Which company is at the center of allegations related to manipulating search results for profit as reported by 'The Age' and is also accused by news publishers in a class action lawsuit covered by 'TechCrunch' for harming their business through anticompetitive practices?",
+          "question_id": "q_e1ea17514a29",
+          "question_type": "inference_query",
+          "width": 2,
+          "width_derivation": {
+            "derivation": "width = count of unique evidence 'url' (fallback 'title') values in evidence_list that resolve to a corpus document",
+            "evidence_identities": [
+              "https://www.theage.com.au/technology/is-google-search-better-than-the-rest-and-is-that-fair-20231012-p5ebsk.html?ref=rss&utm_medium=rss&utm_source=rss_technology",
+              "https://techcrunch.com/2023/12/15/news-publisher-files-class-action-antitrust-suit-against-google-citing-ais-harms-to-their-bottom-line/"
+            ],
+            "resolved_identities": [
+              "https://www.theage.com.au/technology/is-google-search-better-than-the-rest-and-is-that-fair-20231012-p5ebsk.html?ref=rss&utm_medium=rss&utm_source=rss_technology",
+              "https://techcrunch.com/2023/12/15/news-publisher-files-class-action-antitrust-suit-against-google-citing-ais-harms-to-their-bottom-line/"
+            ],
+            "unresolved_identities": []
+          }
+        },
+        {
+          "answer": "ChatGPT",
+          "documents": [
+            {
+              "body_sha256": "2b0bc02b3963176130045f5bf40690c7afe8bba0a80c7fff0a998ed1d5c7d318",
+              "document_id": "doc_75a682725538",
+              "gold_facts": [
+                "ChatGPT is a general-purpose chatbot that uses artificial intelligence to generate text after a user enters a prompt, developed by tech startup OpenAI."
+              ],
+              "identity": "https://techcrunch.com/2023/09/28/chatgpt-everything-to-know-about-the-ai-chatbot/",
+              "source": "TechCrunch",
+              "title": "ChatGPT: Everything you need to know about the AI-powered chatbot",
+              "url": "https://techcrunch.com/2023/09/28/chatgpt-everything-to-know-about-the-ai-chatbot/"
+            },
+            {
+              "body_sha256": "8c06899922957450f6b715268b612e7708ca4eb09afe48cd9d8c5556a2de7b40",
+              "document_id": "doc_ae0a5ba7c93d",
+              "gold_facts": [
+                "ChatGPT can complete and debug code, compose music and essays, answer test questions, generate business ideas, write poetry and song lyrics, translate and summarize text and even emulate a computer running Linux."
+              ],
+              "identity": "https://techcrunch.com/2023/11/30/one-year-later-chatgpt-is-still-alive-and-kicking/",
+              "source": "TechCrunch",
+              "title": "One year later, ChatGPT is still alive and kicking",
+              "url": "https://techcrunch.com/2023/11/30/one-year-later-chatgpt-is-still-alive-and-kicking/"
+            }
+          ],
+          "order_key": "0663179d8b0d5b1d8cce8b5905bcbfa942733e4f82e5635f9a02fab49200dec3",
+          "question": "Which AI-powered chatbot, developed by OpenAI and featured in TechCrunch articles, can assist with tasks ranging from debugging code to composing music, and also generates text based on user prompts?",
+          "question_id": "q_a88d06fb37a1",
+          "question_type": "inference_query",
+          "width": 2,
+          "width_derivation": {
+            "derivation": "width = count of unique evidence 'url' (fallback 'title') values in evidence_list that resolve to a corpus document",
+            "evidence_identities": [
+              "https://techcrunch.com/2023/09/28/chatgpt-everything-to-know-about-the-ai-chatbot/",
+              "https://techcrunch.com/2023/11/30/one-year-later-chatgpt-is-still-alive-and-kicking/"
+            ],
+            "resolved_identities": [
+              "https://techcrunch.com/2023/09/28/chatgpt-everything-to-know-about-the-ai-chatbot/",
+              "https://techcrunch.com/2023/11/30/one-year-later-chatgpt-is-still-alive-and-kicking/"
+            ],
+            "unresolved_identities": []
+          }
+        },
+        {
+          "answer": "Hipgnosis Songs Fund",
+          "documents": [
+            {
+              "body_sha256": "7f960baa80838e1a4c721d67a899768eb7423701621914113abd6efd39e7ee07",
+              "document_id": "doc_daced1b5f005",
+              "gold_facts": [
+                "According to UK-listed HSF, it’s all to do with a recently-updated company valuation from HSF’s official independent valuer, US-headquartered Citrin Cooperman (CC)."
+              ],
+              "identity": "https://www.musicbusinessworldwide.com/hipgnosis-songs-funds-board-is-concerned-over-citrin-coopermans-latest-valuation-of-the-company-whats-it-going-to-do-about-it/",
+              "source": "Music Business Worldwide",
+              "title": "Hipgnosis Songs Fund’s board is concerned over Citrin Cooperman’s latest valuation of the company. What’s it going to do about it?",
+              "url": "https://www.musicbusinessworldwide.com/hipgnosis-songs-funds-board-is-concerned-over-citrin-coopermans-latest-valuation-of-the-company-whats-it-going-to-do-about-it/"
+            },
+            {
+              "body_sha256": "f2aae34d1ba4c28ca7df29009851cf1dcdc45035bdd85324f9a123a3b26ddb7b",
+              "document_id": "doc_140d73a92991",
+              "gold_facts": [
+                "HSF says it’s begun a process to recruit a new Chair; Sutch (pictured inset) will leave his post as and when this person is hired, or in any case before HSF’s AGM next year (in Q4 2024)."
+              ],
+              "identity": "https://www.musicbusinessworldwide.com/hipgnosis-songs-fund-chair-andrew-sutch-to-step-down-all-important-continuation-vote/",
+              "source": "Music Business Worldwide",
+              "title": "Hipgnosis Songs Fund Chair, Andrew Sutch, to step down; all-important ‘continuation vote’ likely to take place on October 26",
+              "url": "https://www.musicbusinessworldwide.com/hipgnosis-songs-fund-chair-andrew-sutch-to-step-down-all-important-continuation-vote/"
+            }
+          ],
+          "order_key": "069ca695c7aa3d73f38c9ff8bb642fc9413cce3055fdd322bf9ffccb9ca61bb5",
+          "question": "Which entity, currently in the process of recruiting a new Chair due to Andrew Sutch's impending departure, is also addressing concerns over financial result delays caused by an updated valuation from Citrin Cooperman, as reported by Music Business Worldwide?",
+          "question_id": "q_705571a46d9e",
+          "question_type": "inference_query",
+          "width": 2,
+          "width_derivation": {
+            "derivation": "width = count of unique evidence 'url' (fallback 'title') values in evidence_list that resolve to a corpus document",
+            "evidence_identities": [
+              "https://www.musicbusinessworldwide.com/hipgnosis-songs-funds-board-is-concerned-over-citrin-coopermans-latest-valuation-of-the-company-whats-it-going-to-do-about-it/",
+              "https://www.musicbusinessworldwide.com/hipgnosis-songs-fund-chair-andrew-sutch-to-step-down-all-important-continuation-vote/"
+            ],
+            "resolved_identities": [
+              "https://www.musicbusinessworldwide.com/hipgnosis-songs-funds-board-is-concerned-over-citrin-coopermans-latest-valuation-of-the-company-whats-it-going-to-do-about-it/",
+              "https://www.musicbusinessworldwide.com/hipgnosis-songs-fund-chair-andrew-sutch-to-step-down-all-important-continuation-vote/"
+            ],
+            "unresolved_identities": []
+          }
+        },
+        {
+          "answer": "Google",
+          "documents": [
+            {
+              "body_sha256": "e0492409e9f212420e0cf1192b4ff1cc07e966158fb2ed595fceabfe3080e638",
+              "document_id": "doc_a5303b0bd1ae",
+              "gold_facts": [
+                "But it didn’t release the full model, Gemini Ultra — only a “lite” version called Gemini Pro."
+              ],
+              "identity": "https://techcrunch.com/2023/12/09/google-fakes-an-ai-demo-grand-theft-auto-vi-goes-viral-and-spotify-cuts-jobs/",
+              "source": "TechCrunch",
+              "title": "Google fakes an AI demo, Grand Theft Auto VI goes viral and Spotify cuts jobs",
+              "url": "https://techcrunch.com/2023/12/09/google-fakes-an-ai-demo-grand-theft-auto-vi-goes-viral-and-spotify-cuts-jobs/"
+            },
+            {
+              "body_sha256": "dfc5f14c1b3c2a3df519a7813998b5fa20dce2c2e625da9f36a7b424631a6cf1",
+              "document_id": "doc_fd327531641b",
+              "gold_facts": [
+                "She admits that she may have misinterpreted the evidence, but maintains that Google manipulates Search to maximise ad revenue."
+              ],
+              "identity": "https://www.theage.com.au/technology/is-google-search-better-than-the-rest-and-is-that-fair-20231012-p5ebsk.html?ref=rss&utm_medium=rss&utm_source=rss_technology",
+              "source": "The Age",
+              "title": "Is Google Search better than the rest? And is that fair?",
+              "url": "https://www.theage.com.au/technology/is-google-search-better-than-the-rest-and-is-that-fair-20231012-p5ebsk.html?ref=rss&utm_medium=rss&utm_source=rss_technology"
+            },
+            {
+              "body_sha256": "3c8d3acaf5086a5a3ff546071a1be9c728c76ee582a688390917fb2d987f796a",
+              "document_id": "doc_d7ccaaaebb29",
+              "gold_facts": [
+                "The case, filed by Arkansas-based publisher Helena World Chronicle, argues that Google “siphons off” news publishers’ content, their readers and ad revenue through anticompetitive means."
+              ],
+              "identity": "https://techcrunch.com/2023/12/15/news-publisher-files-class-action-antitrust-suit-against-google-citing-ais-harms-to-their-bottom-line/",
+              "source": "TechCrunch",
+              "title": "News publisher files class action antitrust suit against Google, citing AI’s harms to their bottom line",
+              "url": "https://techcrunch.com/2023/12/15/news-publisher-files-class-action-antitrust-suit-against-google-citing-ais-harms-to-their-bottom-line/"
+            }
+          ],
+          "order_key": "012fce1f7f081a3f0c99423aa852e25277d0b799aa8a94b8aef5a5094e75c3af",
+          "question": "Which company, recently covered by both TechCrunch and The Age, has faced criticism for not fully releasing an AI model, manipulating search results for ad revenue, and harming news publishers' bottom lines through anticompetitive practices?",
+          "question_id": "q_f4cb4478a291",
+          "question_type": "inference_query",
+          "width": 3,
+          "width_derivation": {
+            "derivation": "width = count of unique evidence 'url' (fallback 'title') values in evidence_list that resolve to a corpus document",
+            "evidence_identities": [
+              "https://techcrunch.com/2023/12/09/google-fakes-an-ai-demo-grand-theft-auto-vi-goes-viral-and-spotify-cuts-jobs/",
+              "https://www.theage.com.au/technology/is-google-search-better-than-the-rest-and-is-that-fair-20231012-p5ebsk.html?ref=rss&utm_medium=rss&utm_source=rss_technology",
+              "https://techcrunch.com/2023/12/15/news-publisher-files-class-action-antitrust-suit-against-google-citing-ais-harms-to-their-bottom-line/"
+            ],
+            "resolved_identities": [
+              "https://techcrunch.com/2023/12/09/google-fakes-an-ai-demo-grand-theft-auto-vi-goes-viral-and-spotify-cuts-jobs/",
+              "https://www.theage.com.au/technology/is-google-search-better-than-the-rest-and-is-that-fair-20231012-p5ebsk.html?ref=rss&utm_medium=rss&utm_source=rss_technology",
+              "https://techcrunch.com/2023/12/15/news-publisher-files-class-action-antitrust-suit-against-google-citing-ais-harms-to-their-bottom-line/"
+            ],
+            "unresolved_identities": []
+          }
+        },
+        {
+          "answer": "Google",
+          "documents": [
+            {
+              "body_sha256": "cdbf5e05378940a4960a2ff4ca5b278d8fa8473e5d881b86d7bef76511d7a299",
+              "document_id": "doc_31d0b63048c6",
+              "gold_facts": [
+                "In blog posts and press materials, Google touted Gemini’s superior architecture and capabilities, claiming that the model meets or exceeds the performance of other leading gen AI models like OpenAI’s GPT-4.",
+                "Google compared the performance of Gemini Pro to GPT-4’s predecessor, GPT-3.5, a model that’s around a year old."
+              ],
+              "identity": "https://techcrunch.com/2023/12/07/early-impressions-of-googles-gemini-arent-great/",
+              "source": "TechCrunch",
+              "title": "Early impressions of Google’s Gemini aren’t great",
+              "url": "https://techcrunch.com/2023/12/07/early-impressions-of-googles-gemini-arent-great/"
+            },
+            {
+              "body_sha256": "fa829baba9c58c054327b3f6a02336d2c45b1e6c7043bb6762fb85d142d68393",
+              "document_id": "doc_83e9552e26f5",
+              "gold_facts": [
+                "Epic will also suggest that Google hid items from discovery by allowing execs and employees to have “off the record” chats, but Google will counter this as well, saying it has provided the court with thousands of chat logs and millions of documents."
+              ],
+              "identity": "https://techcrunch.com/2023/11/06/what-to-know-about-fortnite-maker-epic-games-antitrust-battle-with-google-starting-today/",
+              "source": "TechCrunch",
+              "title": "What to know about Fortnite maker Epic Games’ antitrust battle with Google, starting today",
+              "url": "https://techcrunch.com/2023/11/06/what-to-know-about-fortnite-maker-epic-games-antitrust-battle-with-google-starting-today/"
+            },
+            {
+              "body_sha256": "3c8d3acaf5086a5a3ff546071a1be9c728c76ee582a688390917fb2d987f796a",
+              "document_id": "doc_d7ccaaaebb29",
+              "gold_facts": [
+                "The case, filed by Arkansas-based publisher Helena World Chronicle, argues that Google “siphons off” news publishers’ content, their readers and ad revenue through anticompetitive means."
+              ],
+              "identity": "https://techcrunch.com/2023/12/15/news-publisher-files-class-action-antitrust-suit-against-google-citing-ais-harms-to-their-bottom-line/",
+              "source": "TechCrunch",
+              "title": "News publisher files class action antitrust suit against Google, citing AI’s harms to their bottom line",
+              "url": "https://techcrunch.com/2023/12/15/news-publisher-files-class-action-antitrust-suit-against-google-citing-ais-harms-to-their-bottom-line/"
+            }
+          ],
+          "order_key": "01db63c341335732d060349964e7c7b99ba6c2167145dace9880dc97888d8914",
+          "question": "Which company, recently scrutinized by TechCrunch for both its antitrust legal defense involving document disclosure and the alleged harm its AI has caused to news publishers' revenue, also claims that its new generative AI model Gemini has capabilities that rival or exceed those of OpenAI's models?",
+          "question_id": "q_1e52ebd7c957",
+          "question_type": "inference_query",
+          "width": 3,
+          "width_derivation": {
+            "derivation": "width = count of unique evidence 'url' (fallback 'title') values in evidence_list that resolve to a corpus document",
+            "evidence_identities": [
+              "https://techcrunch.com/2023/12/07/early-impressions-of-googles-gemini-arent-great/",
+              "https://techcrunch.com/2023/11/06/what-to-know-about-fortnite-maker-epic-games-antitrust-battle-with-google-starting-today/",
+              "https://techcrunch.com/2023/12/15/news-publisher-files-class-action-antitrust-suit-against-google-citing-ais-harms-to-their-bottom-line/"
+            ],
+            "resolved_identities": [
+              "https://techcrunch.com/2023/12/07/early-impressions-of-googles-gemini-arent-great/",
+              "https://techcrunch.com/2023/11/06/what-to-know-about-fortnite-maker-epic-games-antitrust-battle-with-google-starting-today/",
+              "https://techcrunch.com/2023/12/15/news-publisher-files-class-action-antitrust-suit-against-google-citing-ais-harms-to-their-bottom-line/"
+            ],
+            "unresolved_identities": []
+          }
+        },
+        {
+          "answer": "Apple",
+          "documents": [
+            {
+              "body_sha256": "2386db846da9710bfce0137c436a5949d631a24e3823c4e854ae0ae7a6840a4c",
+              "document_id": "doc_f40227618365",
+              "gold_facts": [
+                "The agreement also meant that Apple never switched to a Google competitor or allowed users to choose their browser when setting up their iPhones."
+              ],
+              "identity": "https://techcrunch.com/2023/10/30/5-things-we-learned-so-far-about-the-google-antitrust-case/",
+              "source": "TechCrunch",
+              "title": "5 things we learned so far about the Google antitrust case",
+              "url": "https://techcrunch.com/2023/10/30/5-things-we-learned-so-far-about-the-google-antitrust-case/"
+            },
+            {
+              "body_sha256": "5977295626318d7e597d0998a6247933dbf78e3bb50b25e5d3c0bb7081170c4a",
+              "document_id": "doc_7cc83b5f46a0",
+              "gold_facts": [
+                "But, if rumors are to be believed, Apple's focus during the Scary Fast event will be on Macs and a fresh batch of chipsets to power them."
+              ],
+              "identity": "https://www.engadget.com/what-we-expect-at-apples-scary-fast-event-m3-powered-macbook-pros-and-new-imacs-191549274.html?src=rss",
+              "source": "Engadget",
+              "title": "What we expect at Apple's Scary Fast event: M3-powered MacBook Pros and new iMacs",
+              "url": "https://www.engadget.com/what-we-expect-at-apples-scary-fast-event-m3-powered-macbook-pros-and-new-imacs-191549274.html?src=rss"
+            },
+            {
+              "body_sha256": "262cbea0d1ef3170d666b22b0e280782ab83002aa6df394bbf8a1103d81021ae",
+              "document_id": "doc_d7584e1a9824",
+              "gold_facts": [
+                "They use their store, their payments, they force developers to all have the same terms, they force OEMs and carriers to all have the same terms."
+              ],
+              "identity": "https://www.theverge.com/23996474/epic-tim-sweeney-interview-win-google-antitrust-lawsuit-district-court",
+              "source": "The Verge",
+              "title": "Tim Sweeney on Epic’s victory royale over Google",
+              "url": "https://www.theverge.com/23996474/epic-tim-sweeney-interview-win-google-antitrust-lawsuit-district-court"
+            }
+          ],
+          "order_key": "0211d9ba6b6562a2767ddc3cb4920ae744b68971f823d23a59b65b2724499a99",
+          "question": "Which company, covered by TechCrunch for not allowing users to select their browser during iPhone setup, is also the focus of Engadget's rumors about concentrating on Macs and new chipsets at an upcoming event, and has been reported by The Verge to enforce uniform terms on developers, OEMs, and carriers through its store and payment system?",
+          "question_id": "q_b917c1268dc8",
+          "question_type": "inference_query",
+          "width": 3,
+          "width_derivation": {
+            "derivation": "width = count of unique evidence 'url' (fallback 'title') values in evidence_list that resolve to a corpus document",
+            "evidence_identities": [
+              "https://techcrunch.com/2023/10/30/5-things-we-learned-so-far-about-the-google-antitrust-case/",
+              "https://www.engadget.com/what-we-expect-at-apples-scary-fast-event-m3-powered-macbook-pros-and-new-imacs-191549274.html?src=rss",
+              "https://www.theverge.com/23996474/epic-tim-sweeney-interview-win-google-antitrust-lawsuit-district-court"
+            ],
+            "resolved_identities": [
+              "https://techcrunch.com/2023/10/30/5-things-we-learned-so-far-about-the-google-antitrust-case/",
+              "https://www.engadget.com/what-we-expect-at-apples-scary-fast-event-m3-powered-macbook-pros-and-new-imacs-191549274.html?src=rss",
+              "https://www.theverge.com/23996474/epic-tim-sweeney-interview-win-google-antitrust-lawsuit-district-court"
+            ],
+            "unresolved_identities": []
+          }
+        },
+        {
+          "answer": "Google",
+          "documents": [
+            {
+              "body_sha256": "e0492409e9f212420e0cf1192b4ff1cc07e966158fb2ed595fceabfe3080e638",
+              "document_id": "doc_a5303b0bd1ae",
+              "gold_facts": [
+                "But it didn’t release the full model, Gemini Ultra — only a “lite” version called Gemini Pro."
+              ],
+              "identity": "https://techcrunch.com/2023/12/09/google-fakes-an-ai-demo-grand-theft-auto-vi-goes-viral-and-spotify-cuts-jobs/",
+              "source": "TechCrunch",
+              "title": "Google fakes an AI demo, Grand Theft Auto VI goes viral and Spotify cuts jobs",
+              "url": "https://techcrunch.com/2023/12/09/google-fakes-an-ai-demo-grand-theft-auto-vi-goes-viral-and-spotify-cuts-jobs/"
+            },
+            {
+              "body_sha256": "bf2786eeccd4ced8d0effb76acffd95d5fa582d4137123a5f5f477bf90ed009d",
+              "document_id": "doc_3465dba0761c",
+              "gold_facts": [
+                "“Certainly there wasn’t a valid alternative to Google at the time,” Cue said."
+              ],
+              "identity": "https://www.theverge.com/2023/9/26/23891037/apple-eddy-cue-testimony-us-google",
+              "source": "The Verge",
+              "title": "Apple defends Google Search deal in court: ‘There wasn’t a valid alternative’",
+              "url": "https://www.theverge.com/2023/9/26/23891037/apple-eddy-cue-testimony-us-google"
+            },
+            {
+              "body_sha256": "3c8d3acaf5086a5a3ff546071a1be9c728c76ee582a688390917fb2d987f796a",
+              "document_id": "doc_d7ccaaaebb29",
+              "gold_facts": [
+                "The case, filed by Arkansas-based publisher Helena World Chronicle, argues that Google “siphons off” news publishers’ content, their readers and ad revenue through anticompetitive means."
+              ],
+              "identity": "https://techcrunch.com/2023/12/15/news-publisher-files-class-action-antitrust-suit-against-google-citing-ais-harms-to-their-bottom-line/",
+              "source": "TechCrunch",
+              "title": "News publisher files class action antitrust suit against Google, citing AI’s harms to their bottom line",
+              "url": "https://techcrunch.com/2023/12/15/news-publisher-files-class-action-antitrust-suit-against-google-citing-ais-harms-to-their-bottom-line/"
+            }
+          ],
+          "order_key": "0287311c26d001b5117ba5a814a364e838c6473e690bbd8978793492e28ffdf1",
+          "question": "Which company, according to different reports by TechCrunch and The Verge, both released a restricted version of an AI model and was considered the only valid option for search engine services during a negotiation, while also being accused of harming news publishers' revenue and content through anticompetitive practices?",
+          "question_id": "q_f09ed4017ffa",
+          "question_type": "inference_query",
+          "width": 3,
+          "width_derivation": {
+            "derivation": "width = count of unique evidence 'url' (fallback 'title') values in evidence_list that resolve to a corpus document",
+            "evidence_identities": [
+              "https://techcrunch.com/2023/12/09/google-fakes-an-ai-demo-grand-theft-auto-vi-goes-viral-and-spotify-cuts-jobs/",
+              "https://www.theverge.com/2023/9/26/23891037/apple-eddy-cue-testimony-us-google",
+              "https://techcrunch.com/2023/12/15/news-publisher-files-class-action-antitrust-suit-against-google-citing-ais-harms-to-their-bottom-line/"
+            ],
+            "resolved_identities": [
+              "https://techcrunch.com/2023/12/09/google-fakes-an-ai-demo-grand-theft-auto-vi-goes-viral-and-spotify-cuts-jobs/",
+              "https://www.theverge.com/2023/9/26/23891037/apple-eddy-cue-testimony-us-google",
+              "https://techcrunch.com/2023/12/15/news-publisher-files-class-action-antitrust-suit-against-google-citing-ais-harms-to-their-bottom-line/"
+            ],
+            "unresolved_identities": []
+          }
+        },
+        {
+          "answer": "Google",
+          "documents": [
+            {
+              "body_sha256": "b8fc540db407ceeed061b675052e517a7eaea76525b912a238980184646ac284",
+              "document_id": "doc_3495e16a0247",
+              "gold_facts": [
+                "Over the next six months Google’s report states it has no additional measures planned for YouTube."
+              ],
+              "identity": "https://techcrunch.com/2023/09/26/generative-ai-disinformation-risks/",
+              "source": "TechCrunch",
+              "title": "Deepfake election risks trigger EU call for more generative AI safeguards",
+              "url": "https://techcrunch.com/2023/09/26/generative-ai-disinformation-risks/"
+            },
+            {
+              "body_sha256": "c1dd60d60a9044529c02236f6312c722d509719d076782e8cfb5693440c47285",
+              "document_id": "doc_3ddf85a354cb",
+              "gold_facts": [
+                "The company did accomplish that goal, but in doing so, it inadvertently and profoundly changed how the internet looked."
+              ],
+              "identity": "https://www.theverge.com/features/23931789/seo-search-engine-optimization-experts-google-results",
+              "source": "The Verge",
+              "title": "The people who ruined the internet",
+              "url": "https://www.theverge.com/features/23931789/seo-search-engine-optimization-experts-google-results"
+            },
+            {
+              "body_sha256": "bf2786eeccd4ced8d0effb76acffd95d5fa582d4137123a5f5f477bf90ed009d",
+              "document_id": "doc_3465dba0761c",
+              "gold_facts": [
+                "“Certainly there wasn’t a valid alternative to Google at the time,” Cue said."
+              ],
+              "identity": "https://www.theverge.com/2023/9/26/23891037/apple-eddy-cue-testimony-us-google",
+              "source": "The Verge",
+              "title": "Apple defends Google Search deal in court: ‘There wasn’t a valid alternative’",
+              "url": "https://www.theverge.com/2023/9/26/23891037/apple-eddy-cue-testimony-us-google"
+            },
+            {
+              "body_sha256": "3c8d3acaf5086a5a3ff546071a1be9c728c76ee582a688390917fb2d987f796a",
+              "document_id": "doc_d7ccaaaebb29",
+              "gold_facts": [
+                "The case, filed by Arkansas-based publisher Helena World Chronicle, argues that Google “siphons off” news publishers’ content, their readers and ad revenue through anticompetitive means."
+              ],
+              "identity": "https://techcrunch.com/2023/12/15/news-publisher-files-class-action-antitrust-suit-against-google-citing-ais-harms-to-their-bottom-line/",
+              "source": "TechCrunch",
+              "title": "News publisher files class action antitrust suit against Google, citing AI’s harms to their bottom line",
+              "url": "https://techcrunch.com/2023/12/15/news-publisher-files-class-action-antitrust-suit-against-google-citing-ais-harms-to-their-bottom-line/"
+            }
+          ],
+          "order_key": "022cdbd018604942d51bdf2acd8fab95856ae3607aeb54c3824350d544abf0e7",
+          "question": "Which company, recently reported by both TechCrunch and The Verge, is known for its impact on the internet's appearance, has no new measures planned for YouTube in the upcoming months, was described as the only valid search engine service option during a court defense, and is accused of harming news publishers' revenue through anticompetitive practices?",
+          "question_id": "q_191f176a5ede",
+          "question_type": "inference_query",
+          "width": 4,
+          "width_derivation": {
+            "derivation": "width = count of unique evidence 'url' (fallback 'title') values in evidence_list that resolve to a corpus document",
+            "evidence_identities": [
+              "https://techcrunch.com/2023/09/26/generative-ai-disinformation-risks/",
+              "https://www.theverge.com/features/23931789/seo-search-engine-optimization-experts-google-results",
+              "https://www.theverge.com/2023/9/26/23891037/apple-eddy-cue-testimony-us-google",
+              "https://techcrunch.com/2023/12/15/news-publisher-files-class-action-antitrust-suit-against-google-citing-ais-harms-to-their-bottom-line/"
+            ],
+            "resolved_identities": [
+              "https://techcrunch.com/2023/09/26/generative-ai-disinformation-risks/",
+              "https://www.theverge.com/features/23931789/seo-search-engine-optimization-experts-google-results",
+              "https://www.theverge.com/2023/9/26/23891037/apple-eddy-cue-testimony-us-google",
+              "https://techcrunch.com/2023/12/15/news-publisher-files-class-action-antitrust-suit-against-google-citing-ais-harms-to-their-bottom-line/"
+            ],
+            "unresolved_identities": []
+          }
+        },
+        {
+          "answer": "Sam Bankman-Fried",
+          "documents": [
+            {
+              "body_sha256": "b187e5568b28a72bf2f467ba52f299e437009df3ed4b96003f0cfe52530d1243",
+              "document_id": "doc_0f89e922841f",
+              "gold_facts": [
+                "During cross-examination, Huang said Paradigm pressed Bankman-Fried on the board issue and was told he didn't want investors as directors but he did plan on having a board with experts."
+              ],
+              "identity": "https://www.cnbc.com/2023/10/06/sex-signal-messages-and-sabotaging-ftxs-code-sbf-criminal-trial.html",
+              "source": "Cnbc | World Business News Leader",
+              "title": "Sex, Signal messages, and sabotaging FTX's code: SBF execs and Bahamas roommates tell all in court",
+              "url": "https://www.cnbc.com/2023/10/06/sex-signal-messages-and-sabotaging-ftxs-code-sbf-criminal-trial.html"
+            },
+            {
+              "body_sha256": "e3be6b4497b0ce3610f66c689be8202873adeccb6dd08eb829459d8975c5201f",
+              "document_id": "doc_b6ea5ba998e1",
+              "gold_facts": [
+                "Because FTX had grown so much, he could no longer run both companies, he said."
+              ],
+              "identity": "https://www.theverge.com/2023/10/27/23935683/sam-bankman-fried-ftx-fraud-direct-testimony-jury",
+              "source": "The Verge",
+              "title": "The jury finally hears from Sam Bankman-Fried",
+              "url": "https://www.theverge.com/2023/10/27/23935683/sam-bankman-fried-ftx-fraud-direct-testimony-jury"
+            },
+            {
+              "body_sha256": "37a09f2291a9c38c90fa9f7737491c97b611b5422462cb91371e9cdbf8578bf1",
+              "document_id": "doc_2c785c23846b",
+              "gold_facts": [
+                "The second week of the trial’s standout testimony came from Alameda Research’s former CEO Caroline Ellison, who claimed she took $14 billion from customers to repay debts to lenders, using them as a line of credit under the instruction of SBF."
+              ],
+              "identity": "https://techcrunch.com/2023/10/06/sbf-trial-the-latest-updates-from-the-ftx-collapses-courtroom-drama/",
+              "source": "TechCrunch",
+              "title": "SBF Trial: The latest updates from the FTX collapse’s courtroom drama",
+              "url": "https://techcrunch.com/2023/10/06/sbf-trial-the-latest-updates-from-the-ftx-collapses-courtroom-drama/"
+            },
+            {
+              "body_sha256": "5b136a9bad6732b58956655c3e56a7e481b90281a9bccbf43cfb69d40eee0212",
+              "document_id": "doc_13d624f0262a",
+              "gold_facts": [
+                "The prosecution painted Bankman-Fried as someone who knowingly committed fraud to achieve great wealth, power and influence, while the defense countered that the FTX founder acted in good faith, never meant to commit fraud or steal and basically got in over his head."
+              ],
+              "identity": "https://techcrunch.com/2023/10/07/sam-altman-backs-a-teens-startup-google-unveils-the-pixel-8-and-tiktok-tests-an-ad-free-tier/",
+              "source": "TechCrunch",
+              "title": "Sam Altman backs teens’ startup, Google unveils the Pixel 8 and TikTok tests an ad-free tier",
+              "url": "https://techcrunch.com/2023/10/07/sam-altman-backs-a-teens-startup-google-unveils-the-pixel-8-and-tiktok-tests-an-ad-free-tier/"
+            }
+          ],
+          "order_key": "023819cd3869d0265e3f0263d0ce38ea7412e7d52bb5af2a07a9a2dfc4f58e82",
+          "question": "Who is the individual associated with FTX, who, according to reports from 'Cnbc | World Business News Leader', 'The Verge', 'TechCrunch', and another 'TechCrunch' article, planned to establish a board with experts for his company, struggled with managing the significant growth of his company alongside Alameda Research, was implicated in directing a $14 billion customer fund misappropriation, and is alleged by the prosecution to have committed fraud for personal gain?",
+          "question_id": "q_5a503a86ba06",
+          "question_type": "inference_query",
+          "width": 4,
+          "width_derivation": {
+            "derivation": "width = count of unique evidence 'url' (fallback 'title') values in evidence_list that resolve to a corpus document",
+            "evidence_identities": [
+              "https://www.cnbc.com/2023/10/06/sex-signal-messages-and-sabotaging-ftxs-code-sbf-criminal-trial.html",
+              "https://www.theverge.com/2023/10/27/23935683/sam-bankman-fried-ftx-fraud-direct-testimony-jury",
+              "https://techcrunch.com/2023/10/06/sbf-trial-the-latest-updates-from-the-ftx-collapses-courtroom-drama/",
+              "https://techcrunch.com/2023/10/07/sam-altman-backs-a-teens-startup-google-unveils-the-pixel-8-and-tiktok-tests-an-ad-free-tier/"
+            ],
+            "resolved_identities": [
+              "https://www.cnbc.com/2023/10/06/sex-signal-messages-and-sabotaging-ftxs-code-sbf-criminal-trial.html",
+              "https://www.theverge.com/2023/10/27/23935683/sam-bankman-fried-ftx-fraud-direct-testimony-jury",
+              "https://techcrunch.com/2023/10/06/sbf-trial-the-latest-updates-from-the-ftx-collapses-courtroom-drama/",
+              "https://techcrunch.com/2023/10/07/sam-altman-backs-a-teens-startup-google-unveils-the-pixel-8-and-tiktok-tests-an-ad-free-tier/"
+            ],
+            "unresolved_identities": []
+          }
+        },
+        {
+          "answer": "Sportsbooks",
+          "documents": [
+            {
+              "body_sha256": "dc1d1c5566dc9f45f9c93b383666a0b7443bdc071fdecec91e1641bba268aa6a",
+              "document_id": "doc_fc4ff7c8466b",
+              "gold_facts": [
+                "If a significant amount of money is being placed on one team or participant, sportsbooks might adjust the odds to balance their liability."
+              ],
+              "identity": "https://www.sportingnews.com/us/betting/news/moneyline-betting/d3a60119341b3da02f1fb1ae",
+              "source": "Sporting News",
+              "title": "Moneyline Betting - What is the Moneyline and How Does it Work?",
+              "url": "https://www.sportingnews.com/us/betting/news/moneyline-betting/d3a60119341b3da02f1fb1ae"
+            },
+            {
+              "body_sha256": "224f43ad2d5ef463aeef4789ab5bcb76bc278a3c4adad3e81c5a84dc1d8a06ab",
+              "document_id": "doc_10249883b0dd",
+              "gold_facts": [
+                "These delays may lead to bets being refunded depending on the circumstances and the specific rules of your sportsbook."
+              ],
+              "identity": "https://www.sportingnews.com/us/betting/news/mlb-betting-sites/90537abdc639ffc5d57a8c1b",
+              "source": "Sporting News",
+              "title": "MLB Betting Sites & Apps - The Best Baseball Sportsbooks 2023",
+              "url": "https://www.sportingnews.com/us/betting/news/mlb-betting-sites/90537abdc639ffc5d57a8c1b"
+            },
+            {
+              "body_sha256": "4a601f5831bc7641606077eace2a11d9a298c8915688c933da0a721c1a382f34",
+              "document_id": "doc_70c18405547f",
+              "gold_facts": [
+                "That allows sportsbooks to earn the profit built into the odds and lines without worrying about which side wins."
+              ],
+              "identity": "https://www.sportingnews.com/us/betting/news/line-shopping/0f917db9336b2772ba044571",
+              "source": "Sporting News",
+              "title": "Line Shopping in Sports Betting - How to Find the Best Odds",
+              "url": "https://www.sportingnews.com/us/betting/news/line-shopping/0f917db9336b2772ba044571"
+            },
+            {
+              "body_sha256": "ab2b0ae589f8ff1d7f8af59d7aeb2f714ebf2d9cd14272f0f0569ba09e5afc03",
+              "document_id": "doc_ffcb951f208b",
+              "gold_facts": [
+                "But sportsbooks are also gathering this information, and they begin to tighten the NBA Rookie of the Year lines in response."
+              ],
+              "identity": "https://www.sportingnews.com/us/betting/news/nba-roty-odds/7af3a635d324b28ff4c554fd",
+              "source": "Sporting News",
+              "title": "NBA Rookie of the Year Odds - Wembanyama the early favorite",
+              "url": "https://www.sportingnews.com/us/betting/news/nba-roty-odds/7af3a635d324b28ff4c554fd"
+            }
+          ],
+          "order_key": "02734995317d666e23fcffbe2372dd0b5b5573c4957940c6dc357fb05ea50199",
+          "question": "Which type of establishments, as reported by Sporting News, are known to modify betting odds to manage their financial risk, may return wagers in certain weather-related interruptions, profit from betting outcomes regardless of the event's result, and alter specific award-related betting lines based on new information?",
+          "question_id": "q_82ba09d36a0a",
+          "question_type": "inference_query",
+          "width": 4,
+          "width_derivation": {
+            "derivation": "width = count of unique evidence 'url' (fallback 'title') values in evidence_list that resolve to a corpus document",
+            "evidence_identities": [
+              "https://www.sportingnews.com/us/betting/news/moneyline-betting/d3a60119341b3da02f1fb1ae",
+              "https://www.sportingnews.com/us/betting/news/mlb-betting-sites/90537abdc639ffc5d57a8c1b",
+              "https://www.sportingnews.com/us/betting/news/line-shopping/0f917db9336b2772ba044571",
+              "https://www.sportingnews.com/us/betting/news/nba-roty-odds/7af3a635d324b28ff4c554fd"
+            ],
+            "resolved_identities": [
+              "https://www.sportingnews.com/us/betting/news/moneyline-betting/d3a60119341b3da02f1fb1ae",
+              "https://www.sportingnews.com/us/betting/news/mlb-betting-sites/90537abdc639ffc5d57a8c1b",
+              "https://www.sportingnews.com/us/betting/news/line-shopping/0f917db9336b2772ba044571",
+              "https://www.sportingnews.com/us/betting/news/nba-roty-odds/7af3a635d324b28ff4c554fd"
+            ],
+            "unresolved_identities": []
+          }
+        },
+        {
+          "answer": "Sam Bankman-Fried",
+          "documents": [
+            {
+              "body_sha256": "9012b2b1496f097987cdef03dddbf5a1e4c9330119fced3713f254f0e26518c3",
+              "document_id": "doc_b503d71472f2",
+              "gold_facts": [
+                "Wang testified that he heard Bankman-Fried tell another trader that it was okay to continue withdrawing money from the account as long as the amount was less than FTX’s total trading revenue."
+              ],
+              "identity": "https://www.theverge.com/2023/10/26/23931777/ftx-sam-bankman-fried-prosecution-case-friends-family",
+              "source": "The Verge",
+              "title": "In the end, the FTX trial was about the friends screwed along the way",
+              "url": "https://www.theverge.com/2023/10/26/23931777/ftx-sam-bankman-fried-prosecution-case-friends-family"
+            },
+            {
+              "body_sha256": "7547a91c0f876b858db234b2457d32c9e10413dc05e8f08e0ea78c61bd0dcbcc",
+              "document_id": "doc_70808d4f68bc",
+              "gold_facts": [
+                "And after Bankman-Fried left Jane Street, the high-frequency trading firm where the former billionaire got his start in finance after MIT, he persuaded Yedidia to join him as a trader at Alameda and then as a developer at FTX."
+              ],
+              "identity": "https://fortune.com/crypto/2023/10/04/sam-bankman-fried-lawyers-opening-statements-witnesses-marc-antoine-julliard-adam-yedidia-ftx-commodities-trader-developer/",
+              "source": "Fortune",
+              "title": "Is Sam Bankman-Fried a bad ‘man’ or a good ‘boy’? Lawyers swap opening statements before first witnesses take the stand",
+              "url": "https://fortune.com/crypto/2023/10/04/sam-bankman-fried-lawyers-opening-statements-witnesses-marc-antoine-julliard-adam-yedidia-ftx-commodities-trader-developer/"
+            },
+            {
+              "body_sha256": "b187e5568b28a72bf2f467ba52f299e437009df3ed4b96003f0cfe52530d1243",
+              "document_id": "doc_0f89e922841f",
+              "gold_facts": [
+                "During cross-examination, Huang said Paradigm pressed Bankman-Fried on the board issue and was told he didn't want investors as directors but he did plan on having a board with experts."
+              ],
+              "identity": "https://www.cnbc.com/2023/10/06/sex-signal-messages-and-sabotaging-ftxs-code-sbf-criminal-trial.html",
+              "source": "Cnbc | World Business News Leader",
+              "title": "Sex, Signal messages, and sabotaging FTX's code: SBF execs and Bahamas roommates tell all in court",
+              "url": "https://www.cnbc.com/2023/10/06/sex-signal-messages-and-sabotaging-ftxs-code-sbf-criminal-trial.html"
+            },
+            {
+              "body_sha256": "5b136a9bad6732b58956655c3e56a7e481b90281a9bccbf43cfb69d40eee0212",
+              "document_id": "doc_13d624f0262a",
+              "gold_facts": [
+                "The prosecution painted Bankman-Fried as someone who knowingly committed fraud to achieve great wealth, power and influence, while the defense countered that the FTX founder acted in good faith, never meant to commit fraud or steal and basically got in over his head."
+              ],
+              "identity": "https://techcrunch.com/2023/10/07/sam-altman-backs-a-teens-startup-google-unveils-the-pixel-8-and-tiktok-tests-an-ad-free-tier/",
+              "source": "TechCrunch",
+              "title": "Sam Altman backs teens’ startup, Google unveils the Pixel 8 and TikTok tests an ad-free tier",
+              "url": "https://techcrunch.com/2023/10/07/sam-altman-backs-a-teens-startup-google-unveils-the-pixel-8-and-tiktok-tests-an-ad-free-tier/"
+            }
+          ],
+          "order_key": "032947de661c63a7f77a9c026329246bfe340b7833d5af0dcf787ded302c674f",
+          "question": "Who is the individual that, according to a report by The Verge, indicated permissible withdrawals based on a trading platform's revenue, convinced a colleague from Jane Street to join his ventures as reported by Fortune, laid out plans for a specialized board to Paradigm as per Cnbc | World Business News Leader, and is alleged by the prosecution to have committed fraud for personal gain as covered by TechCrunch?",
+          "question_id": "q_172b412d7f19",
+          "question_type": "inference_query",
+          "width": 4,
+          "width_derivation": {
+            "derivation": "width = count of unique evidence 'url' (fallback 'title') values in evidence_list that resolve to a corpus document",
+            "evidence_identities": [
+              "https://www.theverge.com/2023/10/26/23931777/ftx-sam-bankman-fried-prosecution-case-friends-family",
+              "https://fortune.com/crypto/2023/10/04/sam-bankman-fried-lawyers-opening-statements-witnesses-marc-antoine-julliard-adam-yedidia-ftx-commodities-trader-developer/",
+              "https://www.cnbc.com/2023/10/06/sex-signal-messages-and-sabotaging-ftxs-code-sbf-criminal-trial.html",
+              "https://techcrunch.com/2023/10/07/sam-altman-backs-a-teens-startup-google-unveils-the-pixel-8-and-tiktok-tests-an-ad-free-tier/"
+            ],
+            "resolved_identities": [
+              "https://www.theverge.com/2023/10/26/23931777/ftx-sam-bankman-fried-prosecution-case-friends-family",
+              "https://fortune.com/crypto/2023/10/04/sam-bankman-fried-lawyers-opening-statements-witnesses-marc-antoine-julliard-adam-yedidia-ftx-commodities-trader-developer/",
+              "https://www.cnbc.com/2023/10/06/sex-signal-messages-and-sabotaging-ftxs-code-sbf-criminal-trial.html",
+              "https://techcrunch.com/2023/10/07/sam-altman-backs-a-teens-startup-google-unveils-the-pixel-8-and-tiktok-tests-an-ad-free-tier/"
+            ],
+            "unresolved_identities": []
+          }
+        }
+      ]
+    },
+    "stage_c": {
+      "expected_questions": 6,
+      "questions": [],
+      "selection": "deterministic, from Stage B results; see configs/stage_c.yaml"
+    }
+  }
+}

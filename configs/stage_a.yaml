@@ -26,11 +26,20 @@ scoring:
 
 decision_gate:
   metric: f16_atomic_fact_recall
+  # THIS BLOCK IS THE SINGLE SOURCE OF TRUTH for the Stage A calibration bands.
+  # Every band is the half-open interval [min, max): min <= recall < max, except
+  # the last, which is closed at the top so recall == 1.0 has a home. The bands
+  # are exhaustive over [0.0, 1.0] with no gaps and no overlaps, so 0.70 is a
+  # CALIBRATION PASS and 0.95 is a POSSIBLE CEILING -- never both, never neither.
+  interval_convention: "min <= recall < max; the final band is min <= recall <= max"
   bands:
-    - {max: 0.50, status: "BLOCKED — MODEL/BENCHMARK FLOOR"}
-    - {max: 0.70, status: "MARGINAL — REVIEW PROMPTS AND FAILURES"}
-    - {max: 0.90, status: "CALIBRATION PASS"}
-    - {max: 0.95, status: "CALIBRATION PASS (upper band)"}
-    - {max: 1.01, status: "POSSIBLE CEILING — ADD HARDER ITEMS OR DISTRACTORS"}
+    - {min: 0.00, max: 0.50, proceed: false, status: "BLOCKED — MODEL/BENCHMARK FLOOR"}
+    - {min: 0.50, max: 0.70, proceed: false, status: "MARGINAL — REVIEW PROMPTS AND FAILURES"}
+    - {min: 0.70, max: 0.95, proceed: true,  status: "CALIBRATION PASS"}
+    - {min: 0.95, max: 1.00, proceed: false, status: "POSSIBLE CEILING — ADD HARDER ITEMS OR DISTRACTORS"}
   note: >
     Screening thresholds. Not claims of formal statistical significance.
+    The former separate "CALIBRATION PASS (upper band)" for 0.90-0.95 is gone:
+    it was a distinction the README never made and nothing acted on. 0.70-0.95
+    is one pass band. `proceed` is the band's contribution to the Stage B gate;
+    it is necessary, not sufficient — the hard scientific gates still apply.
